@@ -1,0 +1,560 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		FAC90F791838401200F21302 /* ECVIAppleA7CPUCore.mm in Sources */ = {isa = PBXBuildFile; fileRef = FAC90F781838401200F21302 /* ECVIAppleA7CPUCore.mm */; };
+		FAC90F7E1838623100F21302 /* ECVIInstance.mm in Sources */ = {isa = PBXBuildFile; fileRef = FAC90F7D1838623100F21302 /* ECVIInstance.mm */; };
+		FAC90F88183871F000F21302 /* ECVIMachOBinary.mm in Sources */ = {isa = PBXBuildFile; fileRef = FAC90F87183871F000F21302 /* ECVIMachOBinary.mm */; };
+		FAC90F8B1839305200F21302 /* ECVIMachOLoadCommand.mm in Sources */ = {isa = PBXBuildFile; fileRef = FAC90F8A1839305200F21302 /* ECVIMachOLoadCommand.mm */; };
+		FAC90F8E18393AEF00F21302 /* ECVIMachOEntryCommand.mm in Sources */ = {isa = PBXBuildFile; fileRef = FAC90F8D18393AEF00F21302 /* ECVIMachOEntryCommand.mm */; };
+		FACE76AE1837DC7B0076B845 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FACE76AD1837DC7B0076B845 /* Cocoa.framework */; };
+		FACE76B81837DC7B0076B845 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = FACE76B61837DC7B0076B845 /* InfoPlist.strings */; };
+		FACE76BA1837DC7B0076B845 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = FACE76B91837DC7B0076B845 /* main.m */; };
+		FACE76BE1837DC7B0076B845 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = FACE76BC1837DC7B0076B845 /* Credits.rtf */; };
+		FACE76C11837DC7B0076B845 /* ECVIAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = FACE76C01837DC7B0076B845 /* ECVIAppDelegate.m */; };
+		FACE76C41837DC7B0076B845 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = FACE76C21837DC7B0076B845 /* MainMenu.xib */; };
+		FACE76C61837DC7B0076B845 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FACE76C51837DC7B0076B845 /* Images.xcassets */; };
+		FACE76CD1837DC7B0076B845 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FACE76CC1837DC7B0076B845 /* XCTest.framework */; };
+		FACE76CE1837DC7B0076B845 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FACE76AD1837DC7B0076B845 /* Cocoa.framework */; };
+		FACE76D61837DC7B0076B845 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = FACE76D41837DC7B0076B845 /* InfoPlist.strings */; };
+		FACE76D81837DC7B0076B845 /* CoreVisualizerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FACE76D71837DC7B0076B845 /* CoreVisualizerTests.m */; };
+		FACE76E81837E0C50076B845 /* ECVIGenericCPUCore.mm in Sources */ = {isa = PBXBuildFile; fileRef = FACE76E71837E0C50076B845 /* ECVIGenericCPUCore.mm */; };
+		FACE76EC1837E41B0076B845 /* ECVIMemoryMap.mm in Sources */ = {isa = PBXBuildFile; fileRef = FACE76EB1837E41B0076B845 /* ECVIMemoryMap.mm */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		FACE76CF1837DC7B0076B845 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = FACE76A21837DC7B0076B845 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = FACE76A91837DC7B0076B845;
+			remoteInfo = CoreVisualizer;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		FAC90F771838401200F21302 /* ECVIAppleA7CPUCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ECVIAppleA7CPUCore.h; path = CoreVisualizer/ECVIAppleA7CPUCore.h; sourceTree = "<group>"; };
+		FAC90F781838401200F21302 /* ECVIAppleA7CPUCore.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ECVIAppleA7CPUCore.mm; path = CoreVisualizer/ECVIAppleA7CPUCore.mm; sourceTree = "<group>"; };
+		FAC90F7A1838561900F21302 /* Warnings.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Warnings.xcconfig; path = CoreVisualizer/Warnings.xcconfig; sourceTree = "<group>"; };
+		FAC90F7C1838623100F21302 /* ECVIInstance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ECVIInstance.h; path = CoreVisualizer/ECVIInstance.h; sourceTree = "<group>"; };
+		FAC90F7D1838623100F21302 /* ECVIInstance.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ECVIInstance.mm; path = CoreVisualizer/ECVIInstance.mm; sourceTree = "<group>"; };
+		FAC90F86183871F000F21302 /* ECVIMachOBinary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ECVIMachOBinary.h; path = CoreVisualizer/ECVIMachOBinary.h; sourceTree = "<group>"; };
+		FAC90F87183871F000F21302 /* ECVIMachOBinary.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ECVIMachOBinary.mm; path = CoreVisualizer/ECVIMachOBinary.mm; sourceTree = "<group>"; };
+		FAC90F891839305200F21302 /* ECVIMachOLoadCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ECVIMachOLoadCommand.h; path = CoreVisualizer/ECVIMachOLoadCommand.h; sourceTree = "<group>"; };
+		FAC90F8A1839305200F21302 /* ECVIMachOLoadCommand.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ECVIMachOLoadCommand.mm; path = CoreVisualizer/ECVIMachOLoadCommand.mm; sourceTree = "<group>"; };
+		FAC90F8C18393AEF00F21302 /* ECVIMachOEntryCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ECVIMachOEntryCommand.h; path = CoreVisualizer/ECVIMachOEntryCommand.h; sourceTree = "<group>"; };
+		FAC90F8D18393AEF00F21302 /* ECVIMachOEntryCommand.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ECVIMachOEntryCommand.mm; path = CoreVisualizer/ECVIMachOEntryCommand.mm; sourceTree = "<group>"; };
+		FACE76AA1837DC7B0076B845 /* CoreVisualizer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CoreVisualizer.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FACE76AD1837DC7B0076B845 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		FACE76B01837DC7B0076B845 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		FACE76B11837DC7B0076B845 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		FACE76B21837DC7B0076B845 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		FACE76B51837DC7B0076B845 /* CoreVisualizer-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "CoreVisualizer-Info.plist"; sourceTree = "<group>"; };
+		FACE76B71837DC7B0076B845 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		FACE76B91837DC7B0076B845 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		FACE76BB1837DC7B0076B845 /* CoreVisualizer-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "CoreVisualizer-Prefix.pch"; sourceTree = "<group>"; };
+		FACE76BD1837DC7B0076B845 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
+		FACE76BF1837DC7B0076B845 /* ECVIAppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ECVIAppDelegate.h; sourceTree = "<group>"; };
+		FACE76C01837DC7B0076B845 /* ECVIAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ECVIAppDelegate.m; sourceTree = "<group>"; };
+		FACE76C31837DC7B0076B845 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		FACE76C51837DC7B0076B845 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		FACE76CB1837DC7B0076B845 /* CoreVisualizerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CoreVisualizerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		FACE76CC1837DC7B0076B845 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		FACE76D31837DC7B0076B845 /* CoreVisualizerTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "CoreVisualizerTests-Info.plist"; sourceTree = "<group>"; };
+		FACE76D51837DC7B0076B845 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		FACE76D71837DC7B0076B845 /* CoreVisualizerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CoreVisualizerTests.m; sourceTree = "<group>"; };
+		FACE76E11837DCBB0076B845 /* CoreVisualizer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = CoreVisualizer.entitlements; sourceTree = "<group>"; };
+		FACE76E61837E0C50076B845 /* ECVIGenericCPUCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ECVIGenericCPUCore.h; path = CoreVisualizer/ECVIGenericCPUCore.h; sourceTree = "<group>"; };
+		FACE76E71837E0C50076B845 /* ECVIGenericCPUCore.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ECVIGenericCPUCore.mm; path = CoreVisualizer/ECVIGenericCPUCore.mm; sourceTree = "<group>"; };
+		FACE76EA1837E41B0076B845 /* ECVIMemoryMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ECVIMemoryMap.h; path = CoreVisualizer/ECVIMemoryMap.h; sourceTree = "<group>"; };
+		FACE76EB1837E41B0076B845 /* ECVIMemoryMap.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ECVIMemoryMap.mm; path = CoreVisualizer/ECVIMemoryMap.mm; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		FACE76A71837DC7B0076B845 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FACE76AE1837DC7B0076B845 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FACE76C81837DC7B0076B845 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FACE76CE1837DC7B0076B845 /* Cocoa.framework in Frameworks */,
+				FACE76CD1837DC7B0076B845 /* XCTest.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		FAC90F7B1838621400F21302 /* Instance */ = {
+			isa = PBXGroup;
+			children = (
+				FAC90F7C1838623100F21302 /* ECVIInstance.h */,
+				FAC90F7D1838623100F21302 /* ECVIInstance.mm */,
+			);
+			name = Instance;
+			sourceTree = "<group>";
+		};
+		FAC90F7F183871B700F21302 /* Mach-O */ = {
+			isa = PBXGroup;
+			children = (
+				FAC90F86183871F000F21302 /* ECVIMachOBinary.h */,
+				FAC90F87183871F000F21302 /* ECVIMachOBinary.mm */,
+				FAC90F891839305200F21302 /* ECVIMachOLoadCommand.h */,
+				FAC90F8A1839305200F21302 /* ECVIMachOLoadCommand.mm */,
+				FAC90F8C18393AEF00F21302 /* ECVIMachOEntryCommand.h */,
+				FAC90F8D18393AEF00F21302 /* ECVIMachOEntryCommand.mm */,
+			);
+			name = "Mach-O";
+			sourceTree = "<group>";
+		};
+		FACE76A11837DC7B0076B845 = {
+			isa = PBXGroup;
+			children = (
+				FAC90F7A1838561900F21302 /* Warnings.xcconfig */,
+				FAC90F7F183871B700F21302 /* Mach-O */,
+				FACE76E91837E2ED0076B845 /* Memory maps */,
+				FACE76E21837DF870076B845 /* CPU cores */,
+				FAC90F7B1838621400F21302 /* Instance */,
+				FACE76B31837DC7B0076B845 /* CoreVisualizer */,
+				FACE76D11837DC7B0076B845 /* CoreVisualizerTests */,
+				FACE76AC1837DC7B0076B845 /* Frameworks */,
+				FACE76AB1837DC7B0076B845 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		FACE76AB1837DC7B0076B845 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				FACE76AA1837DC7B0076B845 /* CoreVisualizer.app */,
+				FACE76CB1837DC7B0076B845 /* CoreVisualizerTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		FACE76AC1837DC7B0076B845 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				FACE76AD1837DC7B0076B845 /* Cocoa.framework */,
+				FACE76CC1837DC7B0076B845 /* XCTest.framework */,
+				FACE76AF1837DC7B0076B845 /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		FACE76AF1837DC7B0076B845 /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				FACE76B01837DC7B0076B845 /* AppKit.framework */,
+				FACE76B11837DC7B0076B845 /* CoreData.framework */,
+				FACE76B21837DC7B0076B845 /* Foundation.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		FACE76B31837DC7B0076B845 /* CoreVisualizer */ = {
+			isa = PBXGroup;
+			children = (
+				FACE76BF1837DC7B0076B845 /* ECVIAppDelegate.h */,
+				FACE76C01837DC7B0076B845 /* ECVIAppDelegate.m */,
+				FACE76C21837DC7B0076B845 /* MainMenu.xib */,
+				FACE76C51837DC7B0076B845 /* Images.xcassets */,
+				FACE76B41837DC7B0076B845 /* Supporting Files */,
+			);
+			path = CoreVisualizer;
+			sourceTree = "<group>";
+		};
+		FACE76B41837DC7B0076B845 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				FACE76E11837DCBB0076B845 /* CoreVisualizer.entitlements */,
+				FACE76BB1837DC7B0076B845 /* CoreVisualizer-Prefix.pch */,
+				FACE76B91837DC7B0076B845 /* main.m */,
+				FACE76B51837DC7B0076B845 /* CoreVisualizer-Info.plist */,
+				FACE76B61837DC7B0076B845 /* InfoPlist.strings */,
+				FACE76BC1837DC7B0076B845 /* Credits.rtf */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		FACE76D11837DC7B0076B845 /* CoreVisualizerTests */ = {
+			isa = PBXGroup;
+			children = (
+				FACE76D71837DC7B0076B845 /* CoreVisualizerTests.m */,
+				FACE76D21837DC7B0076B845 /* Supporting Files */,
+			);
+			path = CoreVisualizerTests;
+			sourceTree = "<group>";
+		};
+		FACE76D21837DC7B0076B845 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				FACE76D31837DC7B0076B845 /* CoreVisualizerTests-Info.plist */,
+				FACE76D41837DC7B0076B845 /* InfoPlist.strings */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		FACE76E21837DF870076B845 /* CPU cores */ = {
+			isa = PBXGroup;
+			children = (
+				FACE76E61837E0C50076B845 /* ECVIGenericCPUCore.h */,
+				FACE76E71837E0C50076B845 /* ECVIGenericCPUCore.mm */,
+				FAC90F771838401200F21302 /* ECVIAppleA7CPUCore.h */,
+				FAC90F781838401200F21302 /* ECVIAppleA7CPUCore.mm */,
+			);
+			name = "CPU cores";
+			sourceTree = "<group>";
+		};
+		FACE76E91837E2ED0076B845 /* Memory maps */ = {
+			isa = PBXGroup;
+			children = (
+				FACE76EA1837E41B0076B845 /* ECVIMemoryMap.h */,
+				FACE76EB1837E41B0076B845 /* ECVIMemoryMap.mm */,
+			);
+			name = "Memory maps";
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		FACE76A91837DC7B0076B845 /* CoreVisualizer */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FACE76DB1837DC7B0076B845 /* Build configuration list for PBXNativeTarget "CoreVisualizer" */;
+			buildPhases = (
+				FACE76A61837DC7B0076B845 /* Sources */,
+				FACE76A71837DC7B0076B845 /* Frameworks */,
+				FACE76A81837DC7B0076B845 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CoreVisualizer;
+			productName = CoreVisualizer;
+			productReference = FACE76AA1837DC7B0076B845 /* CoreVisualizer.app */;
+			productType = "com.apple.product-type.application";
+		};
+		FACE76CA1837DC7B0076B845 /* CoreVisualizerTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FACE76DE1837DC7B0076B845 /* Build configuration list for PBXNativeTarget "CoreVisualizerTests" */;
+			buildPhases = (
+				FACE76C71837DC7B0076B845 /* Sources */,
+				FACE76C81837DC7B0076B845 /* Frameworks */,
+				FACE76C91837DC7B0076B845 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				FACE76D01837DC7B0076B845 /* PBXTargetDependency */,
+			);
+			name = CoreVisualizerTests;
+			productName = CoreVisualizerTests;
+			productReference = FACE76CB1837DC7B0076B845 /* CoreVisualizerTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		FACE76A21837DC7B0076B845 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				CLASSPREFIX = ECVI;
+				LastUpgradeCheck = 0500;
+				ORGANIZATIONNAME = "Elwea Software";
+				TargetAttributes = {
+					FACE76A91837DC7B0076B845 = {
+						DevelopmentTeam = W56Y48ZXU4;
+						SystemCapabilities = {
+							com.apple.Sandbox = {
+								enabled = 1;
+							};
+						};
+					};
+					FACE76CA1837DC7B0076B845 = {
+						TestTargetID = FACE76A91837DC7B0076B845;
+					};
+				};
+			};
+			buildConfigurationList = FACE76A51837DC7B0076B845 /* Build configuration list for PBXProject "CoreVisualizer" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = FACE76A11837DC7B0076B845;
+			productRefGroup = FACE76AB1837DC7B0076B845 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				FACE76A91837DC7B0076B845 /* CoreVisualizer */,
+				FACE76CA1837DC7B0076B845 /* CoreVisualizerTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		FACE76A81837DC7B0076B845 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FACE76B81837DC7B0076B845 /* InfoPlist.strings in Resources */,
+				FACE76C61837DC7B0076B845 /* Images.xcassets in Resources */,
+				FACE76BE1837DC7B0076B845 /* Credits.rtf in Resources */,
+				FACE76C41837DC7B0076B845 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FACE76C91837DC7B0076B845 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FACE76D61837DC7B0076B845 /* InfoPlist.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		FACE76A61837DC7B0076B845 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FAC90F8E18393AEF00F21302 /* ECVIMachOEntryCommand.mm in Sources */,
+				FACE76BA1837DC7B0076B845 /* main.m in Sources */,
+				FACE76E81837E0C50076B845 /* ECVIGenericCPUCore.mm in Sources */,
+				FACE76EC1837E41B0076B845 /* ECVIMemoryMap.mm in Sources */,
+				FAC90F7E1838623100F21302 /* ECVIInstance.mm in Sources */,
+				FAC90F88183871F000F21302 /* ECVIMachOBinary.mm in Sources */,
+				FAC90F8B1839305200F21302 /* ECVIMachOLoadCommand.mm in Sources */,
+				FAC90F791838401200F21302 /* ECVIAppleA7CPUCore.mm in Sources */,
+				FACE76C11837DC7B0076B845 /* ECVIAppDelegate.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FACE76C71837DC7B0076B845 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FACE76D81837DC7B0076B845 /* CoreVisualizerTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		FACE76D01837DC7B0076B845 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = FACE76A91837DC7B0076B845 /* CoreVisualizer */;
+			targetProxy = FACE76CF1837DC7B0076B845 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		FACE76B61837DC7B0076B845 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				FACE76B71837DC7B0076B845 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		FACE76BC1837DC7B0076B845 /* Credits.rtf */ = {
+			isa = PBXVariantGroup;
+			children = (
+				FACE76BD1837DC7B0076B845 /* en */,
+			);
+			name = Credits.rtf;
+			sourceTree = "<group>";
+		};
+		FACE76C21837DC7B0076B845 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				FACE76C31837DC7B0076B845 /* Base */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+		FACE76D41837DC7B0076B845 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				FACE76D51837DC7B0076B845 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		FACE76D91837DC7B0076B845 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = FAC90F7A1838561900F21302 /* Warnings.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = YES;
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = YES;
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				ONLY_ACTIVE_ARCH = YES;
+				RUN_CLANG_STATIC_ANALYZER = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		FACE76DA1837DC7B0076B845 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = FAC90F7A1838561900F21302 /* Warnings.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_SECURITY_FLOATLOOPCOUNTER = YES;
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_RAND = YES;
+				CLANG_ANALYZER_SECURITY_INSECUREAPI_STRCPY = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_CW_ASM_SYNTAX = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_ENABLE_PASCAL_STRINGS = NO;
+				GCC_TREAT_WARNINGS_AS_ERRORS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.9;
+				RUN_CLANG_STATIC_ANALYZER = YES;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		FACE76DC1837DC7B0076B845 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = FAC90F7A1838561900F21302 /* Warnings.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = CoreVisualizer/CoreVisualizer.entitlements;
+				CODE_SIGN_IDENTITY = "Developer ID Application";
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "CoreVisualizer/CoreVisualizer-Prefix.pch";
+				INFOPLIST_FILE = "CoreVisualizer/CoreVisualizer-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		FACE76DD1837DC7B0076B845 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = FAC90F7A1838561900F21302 /* Warnings.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = CoreVisualizer/CoreVisualizer.entitlements;
+				CODE_SIGN_IDENTITY = "Developer ID Application";
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "CoreVisualizer/CoreVisualizer-Prefix.pch";
+				INFOPLIST_FILE = "CoreVisualizer/CoreVisualizer-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+		FACE76DF1837DC7B0076B845 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = FAC90F7A1838561900F21302 /* Warnings.xcconfig */;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/CoreVisualizer.app/Contents/MacOS/CoreVisualizer";
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "CoreVisualizer/CoreVisualizer-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = "CoreVisualizerTests/CoreVisualizerTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Debug;
+		};
+		FACE76E01837DC7B0076B845 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = FAC90F7A1838561900F21302 /* Warnings.xcconfig */;
+			buildSettings = {
+				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/CoreVisualizer.app/Contents/MacOS/CoreVisualizer";
+				COMBINE_HIDPI_IMAGES = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+					"$(inherited)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "CoreVisualizer/CoreVisualizer-Prefix.pch";
+				INFOPLIST_FILE = "CoreVisualizerTests/CoreVisualizerTests-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUNDLE_LOADER)";
+				WRAPPER_EXTENSION = xctest;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		FACE76A51837DC7B0076B845 /* Build configuration list for PBXProject "CoreVisualizer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FACE76D91837DC7B0076B845 /* Debug */,
+				FACE76DA1837DC7B0076B845 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FACE76DB1837DC7B0076B845 /* Build configuration list for PBXNativeTarget "CoreVisualizer" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FACE76DC1837DC7B0076B845 /* Debug */,
+				FACE76DD1837DC7B0076B845 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FACE76DE1837DC7B0076B845 /* Build configuration list for PBXNativeTarget "CoreVisualizerTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FACE76DF1837DC7B0076B845 /* Debug */,
+				FACE76E01837DC7B0076B845 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = FACE76A21837DC7B0076B845 /* Project object */;
+}

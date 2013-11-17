@@ -1,0 +1,14 @@
+//
+//  Warnings.xcconfig
+//  CoreVisualizer
+//
+//  Created by Gwynne Raskind on 11/16/13.
+//  Copyright (c) 2013 Elwea Software. All rights reserved.
+//
+
+//:configuration = Debug
+WARNING_CFLAGS = '-Weverything' '-Wno-pedantic' '-Wno-objc-missing-property-synthesis' '-Wno-direct-ivar-access' '-Wno-c++98-compat-pedantic' '-Wno-c++98-compat' '-Wno-global-constructors' '-Wno-padded'
+
+//:configuration = Release
+WARNING_CFLAGS = '-Weverything' '-Wno-pedantic' '-Wno-objc-missing-property-synthesis' '-Wno-direct-ivar-access' '-Wno-c++98-compat-pedantic' '-Wno-c++98-compat' '-Wno-global-constructors' '-Wno-padded'
+
