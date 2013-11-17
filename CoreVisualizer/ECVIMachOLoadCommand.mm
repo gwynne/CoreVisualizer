@@ -8,6 +8,7 @@
 
 #import "ECVIMachOLoadCommand.h"
 #import "ECVIMachOEntryCommand.h"
+#import "ECVIMachOSegmentCommand.h"
 
 @interface ECVIMachOLoadCommand ()
 @property(nonatomic,readwrite,weak) ECVIMachOBinary *binary;
@@ -15,20 +16,23 @@
 
 @implementation ECVIMachOLoadCommand
 
-- (instancetype)initWithCommandInFile:(ECVIMachOBinary *)binary fromCmdAt:(const struct load_command *)cmd
+- (instancetype)initWithCommandInFile:(ECVIMachOBinary *)binary fromCmdAt:(const struct load_command *)cmd error:(NSError * __autoreleasing *)error
 {
 	switch (cmd->cmd) {
+		case LC_SEGMENT:
+		case LC_SEGMENT_64:
+			return [[ECVIMachOSegmentCommand alloc] initWithCommandInFile:binary fromCmdAt:cmd error:error];
 		case LC_THREAD:
 		case LC_UNIXTHREAD:
 		case LC_MAIN:
-			return [[ECVIMachOEntryCommand alloc] initWithCommandInFile:binary fromCmdAt:cmd];
+			return [[ECVIMachOEntryCommand alloc] initWithCommandInFile:binary fromCmdAt:cmd error:error];
 		default:
-			return [self initWithBinary:binary type:cmd->cmd size:cmd->cmdsize cmd:cmd];
+			return [self initWithBinary:binary type:cmd->cmd size:cmd->cmdsize cmd:cmd error:error];
 	}
 	return nil;
 }
 
-- (instancetype)initWithBinary:(ECVIMachOBinary *)binary type:(uint32_t)type size:(uint64_t)size cmd:(const struct load_command *)cmd
+- (instancetype)initWithBinary:(ECVIMachOBinary *)binary type:(uint32_t)type size:(uint64_t)size cmd:(const struct load_command *)cmd error:(NSError * __autoreleasing *)error
 {
 	if ((self = [super init])) {
 		_binary = binary;

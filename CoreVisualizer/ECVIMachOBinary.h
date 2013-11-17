@@ -10,6 +10,8 @@
 #import <mach-o/loader.h>
 #import <map>
 
+#define LoadError(message) ({ if (error) *error = [NSError errorWithDomain:@"ECVIMachOLoadingErrorDomain_" __FILE__ code:__COUNTER__ userInfo:@{ NSLocalizedDescriptionKey: message }]; false; })
+
 @class ECVIMachOLoadCommand, ECVIMachOSymbol, ECVIMachOEntryCommand, EVCIMachODynamicInfoCommands;
 
 @interface ECVIMachOBinary : NSObject

@@ -48,7 +48,7 @@
 	[_map mapRegionOfSize:1048576 withName:@"__STACK"];
 }
 
-- (bool)loadBinary:(NSURL *)binary error:(NSError **)error
+- (bool)loadBinary:(NSURL *)binary error:(NSError * __autoreleasing *)error
 {
 
 }

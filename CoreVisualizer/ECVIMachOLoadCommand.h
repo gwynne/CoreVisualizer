@@ -13,7 +13,7 @@
 
 @interface ECVIMachOLoadCommand : NSObject
 
-- (instancetype)initWithCommandInFile:(ECVIMachOBinary *)binary fromCmdAt:(const struct load_command *)cmd;
+- (instancetype)initWithCommandInFile:(ECVIMachOBinary *)binary fromCmdAt:(const struct load_command *)cmd error:(NSError **)error;
 - (void)awakeFromBinary;
 
 @property(nonatomic,readonly) ECVIMachOBinary *binary;
@@ -22,6 +22,6 @@
 @property(nonatomic,readonly) const struct load_command *baseCommand;
 
 // for subclasses only
-- (instancetype)initWithBinary:(ECVIMachOBinary *)binary type:(uint32_t)type size:(uint64_t)size cmd:(const struct load_command *)cmd;
+- (instancetype)initWithBinary:(ECVIMachOBinary *)binary type:(uint32_t)type size:(uint64_t)size cmd:(const struct load_command *)cmd error:(NSError **)error;
 
 @end

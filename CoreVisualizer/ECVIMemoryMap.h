@@ -56,6 +56,7 @@ class ECVIMemoryRegionIterator : public std::iterator<std::bidirectional_iterato
 
 @protocol ECVIMemoryMapDelegate <NSObject>
 
+@optional
 - (void)memoryMap:(ECVIMemoryMap *)memoryMap didMapNewRegion:(const ECVIMemoryRegion &)region;
 - (void)memoryMap:(ECVIMemoryMap *)memoryMap didUnmapRegion:(const ECVIMemoryRegion &)region;
 

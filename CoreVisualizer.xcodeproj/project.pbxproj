@@ -12,6 +12,7 @@
 		FAC90F88183871F000F21302 /* ECVIMachOBinary.mm in Sources */ = {isa = PBXBuildFile; fileRef = FAC90F87183871F000F21302 /* ECVIMachOBinary.mm */; };
 		FAC90F8B1839305200F21302 /* ECVIMachOLoadCommand.mm in Sources */ = {isa = PBXBuildFile; fileRef = FAC90F8A1839305200F21302 /* ECVIMachOLoadCommand.mm */; };
 		FAC90F8E18393AEF00F21302 /* ECVIMachOEntryCommand.mm in Sources */ = {isa = PBXBuildFile; fileRef = FAC90F8D18393AEF00F21302 /* ECVIMachOEntryCommand.mm */; };
+		FAC90F9118396C7C00F21302 /* ECVIMachOSegmentCommand.mm in Sources */ = {isa = PBXBuildFile; fileRef = FAC90F9018396C7C00F21302 /* ECVIMachOSegmentCommand.mm */; };
 		FACE76AE1837DC7B0076B845 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FACE76AD1837DC7B0076B845 /* Cocoa.framework */; };
 		FACE76B81837DC7B0076B845 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = FACE76B61837DC7B0076B845 /* InfoPlist.strings */; };
 		FACE76BA1837DC7B0076B845 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = FACE76B91837DC7B0076B845 /* main.m */; };
@@ -49,6 +50,8 @@
 		FAC90F8A1839305200F21302 /* ECVIMachOLoadCommand.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ECVIMachOLoadCommand.mm; path = CoreVisualizer/ECVIMachOLoadCommand.mm; sourceTree = "<group>"; };
 		FAC90F8C18393AEF00F21302 /* ECVIMachOEntryCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ECVIMachOEntryCommand.h; path = CoreVisualizer/ECVIMachOEntryCommand.h; sourceTree = "<group>"; };
 		FAC90F8D18393AEF00F21302 /* ECVIMachOEntryCommand.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ECVIMachOEntryCommand.mm; path = CoreVisualizer/ECVIMachOEntryCommand.mm; sourceTree = "<group>"; };
+		FAC90F8F18396C7C00F21302 /* ECVIMachOSegmentCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ECVIMachOSegmentCommand.h; path = CoreVisualizer/ECVIMachOSegmentCommand.h; sourceTree = "<group>"; };
+		FAC90F9018396C7C00F21302 /* ECVIMachOSegmentCommand.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ECVIMachOSegmentCommand.mm; path = CoreVisualizer/ECVIMachOSegmentCommand.mm; sourceTree = "<group>"; };
 		FACE76AA1837DC7B0076B845 /* CoreVisualizer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CoreVisualizer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FACE76AD1837DC7B0076B845 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		FACE76B01837DC7B0076B845 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -114,6 +117,8 @@
 				FAC90F8A1839305200F21302 /* ECVIMachOLoadCommand.mm */,
 				FAC90F8C18393AEF00F21302 /* ECVIMachOEntryCommand.h */,
 				FAC90F8D18393AEF00F21302 /* ECVIMachOEntryCommand.mm */,
+				FAC90F8F18396C7C00F21302 /* ECVIMachOSegmentCommand.h */,
+				FAC90F9018396C7C00F21302 /* ECVIMachOSegmentCommand.mm */,
 			);
 			name = "Mach-O";
 			sourceTree = "<group>";
@@ -333,6 +338,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				FAC90F8E18393AEF00F21302 /* ECVIMachOEntryCommand.mm in Sources */,
+				FAC90F9118396C7C00F21302 /* ECVIMachOSegmentCommand.mm in Sources */,
 				FACE76BA1837DC7B0076B845 /* main.m in Sources */,
 				FACE76E81837E0C50076B845 /* ECVIGenericCPUCore.mm in Sources */,
 				FACE76EC1837E41B0076B845 /* ECVIMemoryMap.mm in Sources */,

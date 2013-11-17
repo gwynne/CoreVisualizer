@@ -7,13 +7,16 @@
 //
 
 #import "ECVIMachOBinary.h"
+#import "ECVIMachOLoadCommand.h"
+#import "ECVIMachOEntryCommand.h"
+#import "ECVIMachOSegmentCommand.h"
 
 @implementation ECVIMachOBinary
 {
 	NSData *_fileData;
 }
 
-- (instancetype)initWithURL:(NSURL *)url error:(NSError **)error
+- (instancetype)initWithURL:(NSURL *)url error:(NSError * __autoreleasing *)error
 {
 	if ((self = [super init])) {
 		_url = url;
@@ -26,8 +29,6 @@
 
 - (bool)loadAndReturnError:(NSError * __autoreleasing *)error
 {
-	#define LoadError(message) ({ if (error) *error = [NSError errorWithDomain:@"ECVIMachOLoadingErrorDomain" code:__COUNTER__ userInfo:@{ NSLocalizedDescriptionKey: message }]; false; })
-	
 	if (!(_fileData = [NSData dataWithContentsOfURL:_url options:NSDataReadingMappedAlways error:error])) {
 		return false;
 	}
@@ -52,37 +53,48 @@
 	NSMutableArray *allCommands = @[].mutableCopy;
 	
 	for (uint32_t ncmd = 0; ncmd < header->ncmds; ++ncmd) {
-		ECVIMachOLoadCommand *cmd = [ECVIMachOLoadCommand loadCommandInFile:self fromCmdAt:current_command error:error];
+		ECVIMachOLoadCommand *cmd = [[ECVIMachOLoadCommand alloc] initWithCommandInFile:self fromCmdAt:current_command error:error];
 		
-		if (!cmd) {
+		if (!cmd)
 			return false;
-		}
 		[allCommands addObject:cmd];
 	}
 	_loadCommandList = allCommands.copy;
 	
-	NSMutableArray *dylinkerCmds = @[].mutableCopy;
+	// Run the segments before awaking commands from binary so we get a textVMAddr set
+	NSMutableArray *segments = @[].mutableCopy;
 	
-	for (ECVIMachOLoadCommand *cmd in _loadCommandList) {
-		if ([cmd isKindOfClass:[ECVIMachOEntryCommand class]]) {
-			_entryPoint = cmd;
+	[[self loadCommandsOfType:LC_SEGMENT] enumerateObjectsUsingBlock:^ (ECVIMachOSegmentCommand *obj, NSUInteger idx, BOOL *stop) {
+		if ([obj.name isEqualToString:@"__TEXT"]) {
+			self->_textVMAddr = obj.loadAddress;
 		}
+		[segments addObject:obj];
+	}];
+	_segments = segments.copy;
+	
+	[_loadCommandList enumerateObjectsUsingBlock:^ (ECVIMachOLoadCommand *obj, NSUInteger idx, BOOL *stop) { [obj awakeFromBinary]; }];
+	
+	if (([self loadCommandOfType:LC_UUID])) {
+		; // _uuid = [self loadCommandOfType:LC_UUID].UUID;
 	}
+	
+	// SYMBOL TABLE
 }
 
-@property(nonatomic,readonly) NSURL *url;
-@property(nonatomic,readonly) void *loadAddress;
-@property(nonatomic,readonly) uint32_t type;
-@property(nonatomic,readonly) cpu_type_t cputype;
-@property(nonatomic,readonly) cpu_subtype_t cpusubtype;
-@property(nonatomic,readonly) bool is64Bit;
-@property(nonatomic,readonly) NSArray *loadCommandList;
-@property(nonatomic,readonly) NSArray *segments;
-@property(nonatomic,readonly) ECVIMachOEntryCommand *entryPoint;
-@property(nonatomic,readonly) ECVIMachODynamicInfoCommands *dynamicInfo;
-@property(nonatomic,readonly) NSUUID *uuid;
-@property(nonatomic,readonly) std::map<NSString *, ECVIMachOSymbol *> symbolTable;
 
-- (ECVIMachOSymbol *)lookupSymbolUsingAddress:(uint64_t)address exactMatch:(bool)exact symtableOnly:(bool)noExtraInfo;
+- (ECVIMachOLoadCommand *)loadCommandOfType:(uint32_t)type
+{
+	return [_loadCommandList objectAtIndex:[_loadCommandList indexOfObjectPassingTest:^ BOOL (ECVIMachOLoadCommand *obj, NSUInteger idx, BOOL *stop) { return obj.type == type; }]];
+}
+
+- (NSArray *)loadCommandsOfType:(uint32_t)type
+{
+	return [_loadCommandList objectsAtIndexes:[_loadCommandList indexesOfObjectsPassingTest:^ BOOL (ECVIMachOLoadCommand *obj, NSUInteger idx, BOOL *stop) { return obj.type == type; }]];
+}
+
+- (ECVIMachOSymbol *)lookupSymbolUsingAddress:(uint64_t)address exactMatch:(bool)exact symtableOnly:(bool)noExtraInfo
+{
+	return nil;
+}
 
 @end
