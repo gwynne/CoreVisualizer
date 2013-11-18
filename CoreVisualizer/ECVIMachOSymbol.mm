@@ -43,7 +43,7 @@
 		_type = n_type & N_TYPE;
 		_isExternal = (n_type & N_EXT) ? true : false;
 		_isPrivateExternal = (n_type & N_PEXT) ? true : false;
-		_section = (n_sect == NO_SECT ? nil : binary.textSegment.sections[n_sect - 1]);
+		_section = (n_sect == NO_SECT ? nil : binary.sections[n_sect - 1]);
 		_referenceFlags = (n_desc & REFERENCE_TYPE);
 		_isDynamicallyReferenced = (n_desc & REFERENCED_DYNAMICALLY) ? true : false;
 		_libraryOrdinal = GET_LIBRARY_ORDINAL(n_desc);

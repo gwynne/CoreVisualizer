@@ -18,11 +18,11 @@
 
 @implementation ECVIMachOSegmentCommand
 
-- (instancetype)initWithBinary:(ECVIMachOBinary *)binary type:(uint32_t)type size:(uint64_t)size cmd:(const struct load_command *)cmd error:(NSError *__autoreleasing *)error
+- (instancetype)initWithCommandInFile:(ECVIMachOBinary *)binary fromCmdAt:(const struct load_command *)cmd error:(NSError *__autoreleasing *)error
 {
 	NSAssert(cmd->cmd == LC_SEGMENT || cmd->cmd == LC_SEGMENT_64, @"Command must be a segment");
 	
-	if ((self = [super initWithBinary:binary type:LC_SEGMENT size:size cmd:cmd error:error])) {
+	if ((self = [super initWithBinary:binary type:LC_SEGMENT size:cmd->cmdsize cmd:cmd error:error])) {
 		NSMutableArray *sections = @[].mutableCopy;
 
 		if (cmd->cmd == LC_SEGMENT) {
@@ -76,6 +76,11 @@
 - (void)awakeFromBinary
 {
 	[super awakeFromBinary];
+}
+
+- (ECVIMachOSection *)sectionNamed:(NSString *)sectname
+{
+	return _sections[[_sections indexOfObjectPassingTest:^ BOOL (ECVIMachOSection *obj, NSUInteger idx, BOOL *stop) { return [obj.name isEqualToString:sectname]; }]];
 }
 
 @end

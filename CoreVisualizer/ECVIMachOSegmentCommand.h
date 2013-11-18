@@ -9,6 +9,8 @@
 #import <Foundation/Foundation.h>
 #import "ECVIMachOLoadCommand.h"
 
+@class ECVIMachOSection;
+
 @interface ECVIMachOSegmentCommand : ECVIMachOLoadCommand
 
 @property(nonatomic,readonly) NSString *name;
@@ -18,6 +20,8 @@
 @property(nonatomic,readonly) vm_prot_t initialPermissions;
 @property(nonatomic,readonly) vm_prot_t maximumPermissions;
 @property(nonatomic,readonly) NSArray *sections;
+
+- (ECVIMachOSection *)sectionNamed:(NSString *)sectname;
 
 @end
 

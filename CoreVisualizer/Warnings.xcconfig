@@ -7,7 +7,7 @@
 //
 
 //:configuration = Debug
-WARNING_CFLAGS = '-Weverything' '-Wno-pedantic' '-Wno-objc-missing-property-synthesis' '-Wno-direct-ivar-access' '-Wno-c++98-compat-pedantic' '-Wno-c++98-compat' '-Wno-global-constructors' '-Wno-padded' '-Wno-disabled-macro-expansion'
+WARNING_CFLAGS = '-Weverything' '-Wno-pedantic' '-Wno-objc-missing-property-synthesis' '-Wno-direct-ivar-access' '-Wno-c++98-compat-pedantic' '-Wno-c++98-compat' '-Wno-global-constructors' '-Wno-padded' '-Wno-disabled-macro-expansion' '-Wno-auto-import'
 
 //:configuration = Release
-WARNING_CFLAGS = '-Weverything' '-Wno-pedantic' '-Wno-objc-missing-property-synthesis' '-Wno-direct-ivar-access' '-Wno-c++98-compat-pedantic' '-Wno-c++98-compat' '-Wno-global-constructors' '-Wno-padded' '-Wno-disabled-macro-expansion'
+WARNING_CFLAGS = '-Weverything' '-Wno-pedantic' '-Wno-objc-missing-property-synthesis' '-Wno-direct-ivar-access' '-Wno-c++98-compat-pedantic' '-Wno-c++98-compat' '-Wno-global-constructors' '-Wno-padded' '-Wno-disabled-macro-expansion' '-Wno-auto-import'

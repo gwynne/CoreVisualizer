@@ -54,7 +54,7 @@
 	_cpusubtype = header->cpusubtype;
 	
 	// Read load commands
-	const uint8_t *load_command_start = reinterpret_cast<const uint8_t *>(_loadAddress) + (_is64Bit ? sizeof(struct mach_header) : sizeof(struct mach_header_64));
+	const uint8_t *load_command_start = reinterpret_cast<const uint8_t *>(_loadAddress) + (_is64Bit ? sizeof(struct mach_header_64) : sizeof(struct mach_header));
 	const struct load_command *current_command = reinterpret_cast<const struct load_command *>(load_command_start);
 	NSMutableArray *allCommands = @[].mutableCopy;
 	
@@ -64,11 +64,13 @@
 		if (!cmd)
 			return false;
 		[allCommands addObject:cmd];
+		load_command_start += current_command->cmdsize;
+		current_command = reinterpret_cast<const struct load_command *>(load_command_start);
 	}
 	_loadCommandList = allCommands.copy;
 	
 	// Load segments - run these segments before awaking commands from binary so the text segment load address is available
-	NSMutableArray *segments = @[].mutableCopy;
+	NSMutableArray *segments = @[].mutableCopy, *sections = @[].mutableCopy;
 	
 	[[self loadCommandsOfType:LC_SEGMENT] enumerateObjectsUsingBlock:^ (ECVIMachOSegmentCommand *obj, NSUInteger idx, BOOL *stop) {
 		if ([obj.name isEqualToString:@"__TEXT"]) {
@@ -77,8 +79,10 @@
 			self->_textSegment = obj;
 		}
 		[segments addObject:obj];
+		[sections addObjectsFromArray:obj.sections];
 	}];
 	_segments = segments.copy;
+	_sections = sections.copy;
 	
 	// Awaken the load commands
 	[_loadCommandList enumerateObjectsUsingBlock:^ (ECVIMachOLoadCommand *obj, NSUInteger idx, BOOL *stop) { [obj awakeFromBinary]; }];
@@ -102,12 +106,12 @@
 		ECVIMachOSymbol *symbol = nil;
 		
 		if (_is64Bit) {
-			symbol = [[ECVIMachOSymbol alloc] initWithBinary:self symbol64:reinterpret_cast<const struct nlist_64 *>(_loadAddress) + nsym idx:nsym strings:strtab error:error];
+			symbol = [[ECVIMachOSymbol alloc] initWithBinary:self symbol64:reinterpret_cast<const struct nlist_64 *>(reinterpret_cast<const uint8_t *>(_loadAddress) + symtabcmd->symoff) + nsym idx:nsym strings:strtab error:error];
 		} else {
-			symbol = [[ECVIMachOSymbol alloc] initWithBinary:self symbol:reinterpret_cast<const struct nlist *>(_loadAddress) idx:nsym strings:strtab error:error];
+			symbol = [[ECVIMachOSymbol alloc] initWithBinary:self symbol:reinterpret_cast<const struct nlist *>(reinterpret_cast<const uint8_t *>(_loadAddress) + symtabcmd->symoff) + nsym idx:nsym strings:strtab error:error];
 		}
 		if (!symbol) {
-			return false;
+			continue; //return false;
 		}
 		_symbolTable.insert({ symbol.rawName, symbol });
 		_symbolAddressMap.insert({ symbol.address, symbol });
@@ -148,6 +152,11 @@
 			return (*loc).second;
 	}
 	return nil;
+}
+
+- (ECVIMachOSegmentCommand *)segmentNamed:(NSString *)segname
+{
+	return _segments[[_segments indexOfObjectPassingTest:^ BOOL (ECVIMachOSegmentCommand *obj, NSUInteger idx, BOOL *stop) { return [obj.name isEqualToString:segname]; }]];
 }
 
 @end

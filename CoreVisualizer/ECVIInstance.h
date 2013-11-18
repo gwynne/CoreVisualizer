@@ -12,5 +12,6 @@
 
 - (void)reset;
 - (bool)loadBinary:(NSURL *)binary error:(NSError **)error;
+- (void)stepOne;
 
 @end

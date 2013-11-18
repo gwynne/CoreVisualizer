@@ -26,12 +26,15 @@
 @property(nonatomic,readonly) bool is64Bit;
 @property(nonatomic,readonly) NSArray *loadCommandList;
 @property(nonatomic,readonly) NSArray *segments;
+@property(nonatomic,readonly) NSArray *sections; // combined array from all segments
 @property(nonatomic,readonly) ECVIMachOSegmentCommand *textSegment;
 @property(nonatomic,readonly) NSUUID *uuid;
 @property(nonatomic,readonly) std::map<NSString *, ECVIMachOSymbol *> symbolTable;
 
 - (ECVIMachOLoadCommand *)loadCommandOfType:(uint32_t)type;
 - (NSArray *)loadCommandsOfType:(uint32_t)type;
+
+- (ECVIMachOSegmentCommand *)segmentNamed:(NSString *)segname;
 
 - (ECVIMachOSymbol *)lookupSymbolUsingAddress:(uint64_t)address exactMatch:(bool)exact symtableOnly:(bool)noExtraInfo;
 

@@ -14,6 +14,13 @@
 		FAC90F8E18393AEF00F21302 /* ECVIMachOEntryCommand.mm in Sources */ = {isa = PBXBuildFile; fileRef = FAC90F8D18393AEF00F21302 /* ECVIMachOEntryCommand.mm */; };
 		FAC90F9118396C7C00F21302 /* ECVIMachOSegmentCommand.mm in Sources */ = {isa = PBXBuildFile; fileRef = FAC90F9018396C7C00F21302 /* ECVIMachOSegmentCommand.mm */; };
 		FAC90F9418397C7B00F21302 /* ECVIMachOSymbol.mm in Sources */ = {isa = PBXBuildFile; fileRef = FAC90F9318397C7B00F21302 /* ECVIMachOSymbol.mm */; };
+		FAC90F9B1839BD5400F21302 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAC90F9A1839BD5400F21302 /* Foundation.framework */; };
+		FAC90F9D1839BD5400F21302 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAC90F9C1839BD5400F21302 /* CoreGraphics.framework */; };
+		FAC90F9F1839BD5400F21302 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAC90F9E1839BD5400F21302 /* UIKit.framework */; };
+		FAC90FA51839BD5400F21302 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = FAC90FA31839BD5400F21302 /* InfoPlist.strings */; };
+		FAC90FA71839BD5400F21302 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = FAC90FA61839BD5400F21302 /* main.m */; };
+		FAC90FAB1839BD5400F21302 /* ECVIA6AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = FAC90FAA1839BD5400F21302 /* ECVIA6AppDelegate.m */; };
+		FAC90FAD1839BD5400F21302 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FAC90FAC1839BD5400F21302 /* Images.xcassets */; };
 		FACE76AE1837DC7B0076B845 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FACE76AD1837DC7B0076B845 /* Cocoa.framework */; };
 		FACE76B81837DC7B0076B845 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = FACE76B61837DC7B0076B845 /* InfoPlist.strings */; };
 		FACE76BA1837DC7B0076B845 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = FACE76B91837DC7B0076B845 /* main.m */; };
@@ -55,6 +62,17 @@
 		FAC90F9018396C7C00F21302 /* ECVIMachOSegmentCommand.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ECVIMachOSegmentCommand.mm; path = CoreVisualizer/ECVIMachOSegmentCommand.mm; sourceTree = "<group>"; };
 		FAC90F9218397C7B00F21302 /* ECVIMachOSymbol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ECVIMachOSymbol.h; path = CoreVisualizer/ECVIMachOSymbol.h; sourceTree = "<group>"; };
 		FAC90F9318397C7B00F21302 /* ECVIMachOSymbol.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ECVIMachOSymbol.mm; path = CoreVisualizer/ECVIMachOSymbol.mm; sourceTree = "<group>"; };
+		FAC90F991839BD5400F21302 /* CoreVisualizerARM64Experiment.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CoreVisualizerARM64Experiment.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FAC90F9A1839BD5400F21302 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		FAC90F9C1839BD5400F21302 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		FAC90F9E1839BD5400F21302 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
+		FAC90FA21839BD5400F21302 /* CoreVisualizerARM64Experiment-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "CoreVisualizerARM64Experiment-Info.plist"; sourceTree = "<group>"; };
+		FAC90FA41839BD5400F21302 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		FAC90FA61839BD5400F21302 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		FAC90FA81839BD5400F21302 /* CoreVisualizerARM64Experiment-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "CoreVisualizerARM64Experiment-Prefix.pch"; sourceTree = "<group>"; };
+		FAC90FA91839BD5400F21302 /* ECVIA6AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ECVIA6AppDelegate.h; sourceTree = "<group>"; };
+		FAC90FAA1839BD5400F21302 /* ECVIA6AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ECVIA6AppDelegate.m; sourceTree = "<group>"; };
+		FAC90FAC1839BD5400F21302 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		FACE76AA1837DC7B0076B845 /* CoreVisualizer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CoreVisualizer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FACE76AD1837DC7B0076B845 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		FACE76B01837DC7B0076B845 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -82,6 +100,16 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		FAC90F961839BD5400F21302 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FAC90F9D1839BD5400F21302 /* CoreGraphics.framework in Frameworks */,
+				FAC90F9F1839BD5400F21302 /* UIKit.framework in Frameworks */,
+				FAC90F9B1839BD5400F21302 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FACE76A71837DC7B0076B845 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -128,6 +156,28 @@
 			name = "Mach-O";
 			sourceTree = "<group>";
 		};
+		FAC90FA01839BD5400F21302 /* CoreVisualizerARM64Experiment */ = {
+			isa = PBXGroup;
+			children = (
+				FAC90FA91839BD5400F21302 /* ECVIA6AppDelegate.h */,
+				FAC90FAA1839BD5400F21302 /* ECVIA6AppDelegate.m */,
+				FAC90FAC1839BD5400F21302 /* Images.xcassets */,
+				FAC90FA11839BD5400F21302 /* Supporting Files */,
+			);
+			path = CoreVisualizerARM64Experiment;
+			sourceTree = "<group>";
+		};
+		FAC90FA11839BD5400F21302 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				FAC90FA21839BD5400F21302 /* CoreVisualizerARM64Experiment-Info.plist */,
+				FAC90FA31839BD5400F21302 /* InfoPlist.strings */,
+				FAC90FA61839BD5400F21302 /* main.m */,
+				FAC90FA81839BD5400F21302 /* CoreVisualizerARM64Experiment-Prefix.pch */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
 		FACE76A11837DC7B0076B845 = {
 			isa = PBXGroup;
 			children = (
@@ -138,6 +188,7 @@
 				FAC90F7B1838621400F21302 /* Instance */,
 				FACE76B31837DC7B0076B845 /* CoreVisualizer */,
 				FACE76D11837DC7B0076B845 /* CoreVisualizerTests */,
+				FAC90FA01839BD5400F21302 /* CoreVisualizerARM64Experiment */,
 				FACE76AC1837DC7B0076B845 /* Frameworks */,
 				FACE76AB1837DC7B0076B845 /* Products */,
 			);
@@ -148,6 +199,7 @@
 			children = (
 				FACE76AA1837DC7B0076B845 /* CoreVisualizer.app */,
 				FACE76CB1837DC7B0076B845 /* CoreVisualizerTests.xctest */,
+				FAC90F991839BD5400F21302 /* CoreVisualizerARM64Experiment.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -157,6 +209,9 @@
 			children = (
 				FACE76AD1837DC7B0076B845 /* Cocoa.framework */,
 				FACE76CC1837DC7B0076B845 /* XCTest.framework */,
+				FAC90F9A1839BD5400F21302 /* Foundation.framework */,
+				FAC90F9C1839BD5400F21302 /* CoreGraphics.framework */,
+				FAC90F9E1839BD5400F21302 /* UIKit.framework */,
 				FACE76AF1837DC7B0076B845 /* Other Frameworks */,
 			);
 			name = Frameworks;
@@ -238,6 +293,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		FAC90F981839BD5400F21302 /* CoreVisualizerARM64Experiment */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FAC90FC01839BD5400F21302 /* Build configuration list for PBXNativeTarget "CoreVisualizerARM64Experiment" */;
+			buildPhases = (
+				FAC90F951839BD5400F21302 /* Sources */,
+				FAC90F961839BD5400F21302 /* Frameworks */,
+				FAC90F971839BD5400F21302 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = CoreVisualizerARM64Experiment;
+			productName = CoreVisualizerARM64Experiment;
+			productReference = FAC90F991839BD5400F21302 /* CoreVisualizerARM64Experiment.app */;
+			productType = "com.apple.product-type.application";
+		};
 		FACE76A91837DC7B0076B845 /* CoreVisualizer */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = FACE76DB1837DC7B0076B845 /* Build configuration list for PBXNativeTarget "CoreVisualizer" */;
@@ -283,6 +355,9 @@
 				LastUpgradeCheck = 0500;
 				ORGANIZATIONNAME = "Elwea Software";
 				TargetAttributes = {
+					FAC90F981839BD5400F21302 = {
+						DevelopmentTeam = W56Y48ZXU4;
+					};
 					FACE76A91837DC7B0076B845 = {
 						DevelopmentTeam = W56Y48ZXU4;
 						SystemCapabilities = {
@@ -311,11 +386,21 @@
 			targets = (
 				FACE76A91837DC7B0076B845 /* CoreVisualizer */,
 				FACE76CA1837DC7B0076B845 /* CoreVisualizerTests */,
+				FAC90F981839BD5400F21302 /* CoreVisualizerARM64Experiment */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		FAC90F971839BD5400F21302 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FAC90FA51839BD5400F21302 /* InfoPlist.strings in Resources */,
+				FAC90FAD1839BD5400F21302 /* Images.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FACE76A81837DC7B0076B845 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -338,6 +423,15 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		FAC90F951839BD5400F21302 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FAC90FAB1839BD5400F21302 /* ECVIA6AppDelegate.m in Sources */,
+				FAC90FA71839BD5400F21302 /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		FACE76A61837DC7B0076B845 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -375,6 +469,14 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
+		FAC90FA31839BD5400F21302 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				FAC90FA41839BD5400F21302 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
 		FACE76B61837DC7B0076B845 /* InfoPlist.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -410,6 +512,53 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		FAC90FC11839BD5400F21302 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "CoreVisualizerARM64Experiment/CoreVisualizerARM64Experiment-Prefix.pch";
+				INFOPLIST_FILE = "CoreVisualizerARM64Experiment/CoreVisualizerARM64Experiment-Info.plist";
+				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		FAC90FC21839BD5400F21302 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_INCLUDING_64_BIT)";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(DEVELOPER_FRAMEWORKS_DIR)",
+				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "CoreVisualizerARM64Experiment/CoreVisualizerARM64Experiment-Prefix.pch";
+				INFOPLIST_FILE = "CoreVisualizerARM64Experiment/CoreVisualizerARM64Experiment-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
 		FACE76D91837DC7B0076B845 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = FAC90F7A1838561900F21302 /* Warnings.xcconfig */;
@@ -464,7 +613,6 @@
 		};
 		FACE76DC1837DC7B0076B845 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = FAC90F7A1838561900F21302 /* Warnings.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = CoreVisualizer/CoreVisualizer.entitlements;
@@ -480,7 +628,6 @@
 		};
 		FACE76DD1837DC7B0076B845 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = FAC90F7A1838561900F21302 /* Warnings.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = CoreVisualizer/CoreVisualizer.entitlements;
@@ -496,7 +643,6 @@
 		};
 		FACE76DF1837DC7B0076B845 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = FAC90F7A1838561900F21302 /* Warnings.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/CoreVisualizer.app/Contents/MacOS/CoreVisualizer";
 				COMBINE_HIDPI_IMAGES = YES;
@@ -519,7 +665,6 @@
 		};
 		FACE76E01837DC7B0076B845 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = FAC90F7A1838561900F21302 /* Warnings.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/CoreVisualizer.app/Contents/MacOS/CoreVisualizer";
 				COMBINE_HIDPI_IMAGES = YES;
@@ -539,6 +684,14 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		FAC90FC01839BD5400F21302 /* Build configuration list for PBXNativeTarget "CoreVisualizerARM64Experiment" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FAC90FC11839BD5400F21302 /* Debug */,
+				FAC90FC21839BD5400F21302 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
 		FACE76A51837DC7B0076B845 /* Build configuration list for PBXProject "CoreVisualizer" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
