@@ -17,18 +17,22 @@ struct ECVIMemoryRegion {
 	NSString *name;
 };
 
+typedef void *__ECVIMemoryRegionIteratorInternal;
 class ECVIMemoryRegionIterator : public std::iterator<std::bidirectional_iterator_tag, const ECVIMemoryRegion> {
+	private:
+		__ECVIMemoryRegionIteratorInternal internal;
 	public:
-		ECVIMemoryRegionIterator() = default;
-		ECVIMemoryRegionIterator(const ECVIMemoryRegionIterator &i) { }
-		virtual ~ECVIMemoryRegionIterator();
-		virtual ECVIMemoryRegionIterator &operator++(void) { return *this; }
-		virtual ECVIMemoryRegionIterator operator++(int) { return *this; }
-		virtual ECVIMemoryRegionIterator &operator--(void) { return *this; }
-		virtual ECVIMemoryRegionIterator operator--(int) { return *this; }
-		virtual bool operator==(const ECVIMemoryRegionIterator &i) { return false; }
-		virtual bool operator!=(const ECVIMemoryRegionIterator &i) { return false; }
-		virtual reference operator*(void) { }
+		ECVIMemoryRegionIterator(void);
+		ECVIMemoryRegionIterator(__ECVIMemoryRegionIteratorInternal internal_);
+		ECVIMemoryRegionIterator(const ECVIMemoryRegionIterator &i);
+		~ECVIMemoryRegionIterator();
+		ECVIMemoryRegionIterator &operator++(void);
+		ECVIMemoryRegionIterator operator++(int);
+		ECVIMemoryRegionIterator &operator--(void);
+		ECVIMemoryRegionIterator operator--(int);
+		bool operator==(const ECVIMemoryRegionIterator &i) const;
+		bool operator!=(const ECVIMemoryRegionIterator &i) const;
+		reference operator*(void) const;
 };
 
 @protocol ECVIMemoryMapDelegate;
@@ -44,7 +48,7 @@ class ECVIMemoryRegionIterator : public std::iterator<std::bidirectional_iterato
 - (const ECVIMemoryRegion &)regionByName:(NSString *)name;
 
 - (const ECVIMemoryRegion &)mapRegionOfSize:(uint64_t)regionLen withName:(NSString *)regionName;
-- (const ECVIMemoryRegion &)mapRegionOfSize:(uint64_t)regionLen withName:(NSString *)regionName atAddress:(uint64_t)regionBase;// allowingOverlap:(bool)overlap;
+- (const ECVIMemoryRegion &)mapRegionOfSize:(uint64_t)regionLen withName:(NSString *)regionName atAddress:(uint64_t)regionBase empty:(bool)emptyRegion;
 
 - (bool)unmapRegionAt:(uint64_t)regionBase unmappingMultiple:(bool)multiple;
 - (bool)unmapRegion:(const ECVIMemoryRegion &)region;

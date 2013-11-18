@@ -63,6 +63,30 @@ class ECVIARMv8Core {
 	innerCore.step();
 }
 
+- (NSString *)description
+{
+	NSMutableString *desc = @"".mutableCopy;
+	
+	[desc appendFormat:@"%@ <resets to 0x%016llx>\n", self.class, self.startPC];
+	[desc appendFormat:@"Register state:\n"];
+	[desc appendFormat:@"x0:  %016llx     x1:  %016llx     x2:  %016llx     x3:  %016llx\n", innerCore.x[0], innerCore.x[1], innerCore.x[2], innerCore.x[3]];
+	[desc appendFormat:@"x4:  %016llx     x5:  %016llx     x6:  %016llx     x7:  %016llx\n", innerCore.x[4], innerCore.x[5], innerCore.x[6], innerCore.x[7]];
+	[desc appendFormat:@"x8:  %016llx     x9:  %016llx     x10: %016llx     x11: %016llx\n", innerCore.x[8], innerCore.x[9], innerCore.x[10], innerCore.x[11]];
+	[desc appendFormat:@"x12: %016llx     x13: %016llx     x14: %016llx     x15: %016llx\n", innerCore.x[12], innerCore.x[13], innerCore.x[14], innerCore.x[15]];
+	[desc appendFormat:@"x16: %016llx     x17: %016llx     x18: %016llx     x19: %016llx\n", innerCore.x[16], innerCore.x[17], innerCore.x[18], innerCore.x[19]];
+	[desc appendFormat:@"x20: %016llx     x21: %016llx     x22: %016llx     x23: %016llx\n", innerCore.x[20], innerCore.x[21], innerCore.x[22], innerCore.x[23]];
+	[desc appendFormat:@"x24: %016llx     x25: %016llx     x26: %016llx     x27: %016llx\n", innerCore.x[24], innerCore.x[25], innerCore.x[26], innerCore.x[27]];
+	[desc appendFormat:@"x28: %016llx  x29/fp: %016llx  x30/lr: %016llx     x31: %016llx\n", innerCore.x[28], innerCore.x[29], innerCore.x[30], 0ULL];
+	[desc appendFormat:@" sp: %016llx      pc: %016llx    nzcv: %01x\n",					 innerCore.sp, innerCore.pc, (innerCore.n << 3) | (innerCore.z << 2) | (innerCore.c << 1) | innerCore.vv];
+	for (uint32_t i = 0; i < 32; i += 2) {
+		[desc appendFormat:@"v%u:%s %016llx%016llx    v%u:%s %016llx%016llx\n",
+			   i, i > 9 ? "" : " ", (uint64_t)(innerCore.v[i] >> 64), (uint64_t)(innerCore.v[i] & ((__uint128_t)UINT64_MAX)),
+			   i + 1, (i + 1) > 9 ? "" : " ", (uint64_t)(innerCore.v[i + 1] >> 64), (uint64_t)(innerCore.v[i + 1] & ((__uint128_t)UINT64_MAX))];
+	}
+	[desc appendFormat:@"fpsr: %08x                           fpcr: %08x\n", innerCore.fpsr, innerCore.fpcr];
+	return desc;
+}
+
 @end
 
 void ECVIARMv8Core::reset(uint64_t startPC)

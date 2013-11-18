@@ -16,26 +16,33 @@
 @implementation ECVIMachOBinary
 {
 	NSData *_fileData;
+	std::map<NSString *, ECVIMachOSymbol *> _symbolTable;
 	std::map<uint64_t, ECVIMachOSymbol *> _symbolAddressMap;
 }
 
 - (instancetype)initWithURL:(NSURL *)url error:(NSError * __autoreleasing *)error
 {
+	NSData *data = [NSData dataWithContentsOfURL:_url options:NSDataReadingMappedAlways error:error];
+	
+	if (!data) {
+		return nil;
+	}
+	return [self initWithData:data basedOnURL:url error:error];
+}
+
+- (instancetype)initWithData:(NSData *)data basedOnURL:(NSURL *)url error:(NSError * __autoreleasing *)error
+{
 	if ((self = [super init])) {
 		_url = url;
-		if (![self loadAndReturnError:error]) {
+		_fileData = data;
+		if (![self loadAndReturnError:error])
 			return nil;
-		}
 	}
 	return self;
 }
 
 - (bool)loadAndReturnError:(NSError * __autoreleasing *)error
 {
-	// Map binary in
-	if (!(_fileData = [NSData dataWithContentsOfURL:_url options:NSDataReadingMappedAlways error:error])) {
-		return false;
-	}
 	_loadAddress = _fileData.bytes;
 	
 	// Read header
@@ -113,8 +120,8 @@
 		if (!symbol) {
 			continue; //return false;
 		}
-		_symbolTable.insert({ symbol.rawName, symbol });
-		_symbolAddressMap.insert({ symbol.address, symbol });
+		_symbolTable[symbol.rawName] = symbol;
+		_symbolAddressMap[symbol.address] = symbol;
 	}
 	
 	return true;
@@ -157,6 +164,11 @@
 - (ECVIMachOSegmentCommand *)segmentNamed:(NSString *)segname
 {
 	return _segments[[_segments indexOfObjectPassingTest:^ BOOL (ECVIMachOSegmentCommand *obj, NSUInteger idx, BOOL *stop) { return [obj.name isEqualToString:segname]; }]];
+}
+
+- (const std::map<NSString *, ECVIMachOSymbol *> &)symbolTable
+{
+	return _symbolTable;
 }
 
 @end

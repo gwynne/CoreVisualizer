@@ -17,6 +17,7 @@
 @interface ECVIMachOBinary : NSObject
 
 - (instancetype)initWithURL:(NSURL *)url error:(NSError **)error;
+- (instancetype)initWithData:(NSData *)data basedOnURL:(NSURL *)url error:(NSError **)error;
 
 @property(nonatomic,readonly) NSURL *url;
 @property(nonatomic,readonly) const void *loadAddress;
@@ -29,7 +30,7 @@
 @property(nonatomic,readonly) NSArray *sections; // combined array from all segments
 @property(nonatomic,readonly) ECVIMachOSegmentCommand *textSegment;
 @property(nonatomic,readonly) NSUUID *uuid;
-@property(nonatomic,readonly) std::map<NSString *, ECVIMachOSymbol *> symbolTable;
+@property(nonatomic,readonly) const std::map<NSString *, ECVIMachOSymbol *> &symbolTable;
 
 - (ECVIMachOLoadCommand *)loadCommandOfType:(uint32_t)type;
 - (NSArray *)loadCommandsOfType:(uint32_t)type;

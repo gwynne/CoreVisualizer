@@ -21,6 +21,7 @@
 		FAC90FA71839BD5400F21302 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = FAC90FA61839BD5400F21302 /* main.m */; };
 		FAC90FAB1839BD5400F21302 /* ECVIA6AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = FAC90FAA1839BD5400F21302 /* ECVIA6AppDelegate.m */; };
 		FAC90FAD1839BD5400F21302 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FAC90FAC1839BD5400F21302 /* Images.xcassets */; };
+		FAC90FC81839C6A200F21302 /* ECVIMachOFatBinary.mm in Sources */ = {isa = PBXBuildFile; fileRef = FAC90FC71839C6A200F21302 /* ECVIMachOFatBinary.mm */; };
 		FACE76AE1837DC7B0076B845 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FACE76AD1837DC7B0076B845 /* Cocoa.framework */; };
 		FACE76B81837DC7B0076B845 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = FACE76B61837DC7B0076B845 /* InfoPlist.strings */; };
 		FACE76BA1837DC7B0076B845 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = FACE76B91837DC7B0076B845 /* main.m */; };
@@ -73,6 +74,8 @@
 		FAC90FA91839BD5400F21302 /* ECVIA6AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ECVIA6AppDelegate.h; sourceTree = "<group>"; };
 		FAC90FAA1839BD5400F21302 /* ECVIA6AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ECVIA6AppDelegate.m; sourceTree = "<group>"; };
 		FAC90FAC1839BD5400F21302 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		FAC90FC61839C6A200F21302 /* ECVIMachOFatBinary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ECVIMachOFatBinary.h; path = CoreVisualizer/ECVIMachOFatBinary.h; sourceTree = "<group>"; };
+		FAC90FC71839C6A200F21302 /* ECVIMachOFatBinary.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ECVIMachOFatBinary.mm; path = CoreVisualizer/ECVIMachOFatBinary.mm; sourceTree = "<group>"; };
 		FACE76AA1837DC7B0076B845 /* CoreVisualizer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CoreVisualizer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FACE76AD1837DC7B0076B845 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		FACE76B01837DC7B0076B845 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -142,6 +145,8 @@
 		FAC90F7F183871B700F21302 /* Mach-O */ = {
 			isa = PBXGroup;
 			children = (
+				FAC90FC61839C6A200F21302 /* ECVIMachOFatBinary.h */,
+				FAC90FC71839C6A200F21302 /* ECVIMachOFatBinary.mm */,
 				FAC90F86183871F000F21302 /* ECVIMachOBinary.h */,
 				FAC90F87183871F000F21302 /* ECVIMachOBinary.mm */,
 				FAC90F891839305200F21302 /* ECVIMachOLoadCommand.h */,
@@ -436,6 +441,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FAC90FC81839C6A200F21302 /* ECVIMachOFatBinary.mm in Sources */,
 				FAC90F8E18393AEF00F21302 /* ECVIMachOEntryCommand.mm in Sources */,
 				FAC90F9118396C7C00F21302 /* ECVIMachOSegmentCommand.mm in Sources */,
 				FACE76BA1837DC7B0076B845 /* main.m in Sources */,

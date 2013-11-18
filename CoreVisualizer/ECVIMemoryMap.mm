@@ -9,30 +9,29 @@
 #import "ECVIMemoryMap.h"
 #import <algorithm>
 #import <cstdlib>
+#import <vector>
 
 class _ECVIMemoryRegion : public ECVIMemoryRegion {
 	
 	public:
-		char *area;
+		NSMutableData *area;
 		
 		_ECVIMemoryRegion(void) : ECVIMemoryRegion() {
 			baseAddress = ECVIInvalidRegionAddress;
 			length = 0;
 			name = nil;
-			area = nullptr;
+			area = nil;
 		}
-		_ECVIMemoryRegion(uint64_t base, uint64_t len, NSString *label) : ECVIMemoryRegion() {
+		_ECVIMemoryRegion(uint64_t base, uint64_t len, NSString *label, bool empty) : ECVIMemoryRegion() {
 			baseAddress = base;
 			length = len;
 			name = label;
-			area = static_cast<char *>(std::calloc(length, 1));
+			area = empty ? nil : [NSMutableData dataWithLength:len];
 		}
-		~_ECVIMemoryRegion() {
-			std::free(area);
-		}
+		virtual ~_ECVIMemoryRegion();
 		
-		bool operator==(const ECVIMemoryRegion &r) const { return r.baseAddress == baseAddress && r.length == length && [r.name isEqualToString:name]; }
-		bool operator==(const _ECVIMemoryRegion &r) const { return r.baseAddress == baseAddress && r.length == length && [r.name isEqualToString:name]; }
+		bool operator==(const ECVIMemoryRegion &r) const { return r.baseAddress == baseAddress && r.length == length && (r.name == name || [r.name isEqualToString:name]); }
+		bool operator==(const _ECVIMemoryRegion &r) const { return r.baseAddress == baseAddress && r.length == length && (r.name == name || [r.name isEqualToString:name]); }
 		bool operator!=(const ECVIMemoryRegion &r) const { return !(*this == r); }
 		bool operator!=(const _ECVIMemoryRegion &r) const { return !(r == *this); }
 		bool operator<(const ECVIMemoryRegion &r) const { return baseAddress < r.baseAddress; }
@@ -45,32 +44,23 @@ class _ECVIMemoryRegion : public ECVIMemoryRegion {
 		bool operator>=(const _ECVIMemoryRegion &r) const { return baseAddress >= r.baseAddress; }
 };
 
-class _ECVIMemoryRegionIterator : public ECVIMemoryRegionIterator {
-	
-	private:
-		std::set<_ECVIMemoryRegion>::const_iterator realIterator;
-		
-	public:
-		_ECVIMemoryRegionIterator(const std::set<_ECVIMemoryRegion>::const_iterator &i) : ECVIMemoryRegionIterator(), realIterator(i) { }
-		_ECVIMemoryRegionIterator(const _ECVIMemoryRegionIterator &i) : ECVIMemoryRegionIterator(), realIterator(i.realIterator) { }
-		virtual ~_ECVIMemoryRegionIterator();
-		ECVIMemoryRegionIterator &operator++(void) { ++realIterator; return *this; }
-		ECVIMemoryRegionIterator operator++(int) { _ECVIMemoryRegionIterator tmp(*this); operator++(); return tmp; }
-		ECVIMemoryRegionIterator &operator--(void) { --realIterator; return *this; }
-		ECVIMemoryRegionIterator operator--(int) { _ECVIMemoryRegionIterator tmp(*this); operator--(); return tmp; }
-		bool operator==(const ECVIMemoryRegionIterator &i) { return realIterator == reinterpret_cast<const _ECVIMemoryRegionIterator &>(i).realIterator; }
-		bool operator!=(const ECVIMemoryRegionIterator &i) { return realIterator != reinterpret_cast<const _ECVIMemoryRegionIterator &>(i).realIterator; }
-		
-		reference operator*(void) { return *realIterator; }
-};
-
-ECVIMemoryRegionIterator::~ECVIMemoryRegionIterator()
+_ECVIMemoryRegion::~_ECVIMemoryRegion()
 {
 }
 
-_ECVIMemoryRegionIterator::~_ECVIMemoryRegionIterator()
-{
-}
+typedef std::set<_ECVIMemoryRegion>::const_iterator *__ECVIMemoryRegionIteratorInternal2;
+
+ECVIMemoryRegionIterator::ECVIMemoryRegionIterator(void) : internal(nullptr) {}
+ECVIMemoryRegionIterator::ECVIMemoryRegionIterator(__ECVIMemoryRegionIteratorInternal internal_) : internal(internal_) {}
+ECVIMemoryRegionIterator::ECVIMemoryRegionIterator(const ECVIMemoryRegionIterator &i) : internal(i.internal) {}
+ECVIMemoryRegionIterator::~ECVIMemoryRegionIterator() {}
+ECVIMemoryRegionIterator &ECVIMemoryRegionIterator::operator++(void) { ++(*reinterpret_cast<__ECVIMemoryRegionIteratorInternal2>(internal)); return *this; }
+ECVIMemoryRegionIterator ECVIMemoryRegionIterator::operator++(int) { ECVIMemoryRegionIterator tmp(*this); operator++(); return tmp; }
+ECVIMemoryRegionIterator &ECVIMemoryRegionIterator::operator--(void) { --(*reinterpret_cast<__ECVIMemoryRegionIteratorInternal2>(internal)); return *this; }
+ECVIMemoryRegionIterator ECVIMemoryRegionIterator::operator--(int) { ECVIMemoryRegionIterator tmp(*this); operator--(); return tmp; }
+bool ECVIMemoryRegionIterator::operator==(const ECVIMemoryRegionIterator &i) const { return *reinterpret_cast<__ECVIMemoryRegionIteratorInternal2>(internal) == *reinterpret_cast<__ECVIMemoryRegionIteratorInternal2>(i.internal); }
+bool ECVIMemoryRegionIterator::operator!=(const ECVIMemoryRegionIterator &i) const { return *reinterpret_cast<__ECVIMemoryRegionIteratorInternal2>(internal) != *reinterpret_cast<__ECVIMemoryRegionIteratorInternal2>(i.internal); }
+ECVIMemoryRegionIterator::reference ECVIMemoryRegionIterator::operator*(void) const { return *(*reinterpret_cast<__ECVIMemoryRegionIteratorInternal2>(internal)); }
 
 static const _ECVIMemoryRegion ECVIInvalidRegion;
 
@@ -81,6 +71,9 @@ static const _ECVIMemoryRegion ECVIInvalidRegion;
 @end
 
 @implementation ECVIMemoryMap
+{
+	std::vector<std::set<_ECVIMemoryRegion>::const_iterator> _begIters, _endIters;
+}
 
 - (instancetype)initWithPageSize:(uint64_t)pageSize
 {
@@ -95,12 +88,14 @@ static const _ECVIMemoryRegion ECVIInvalidRegion;
 
 - (ECVIMemoryRegionIterator)regionsBegin
 {
-	return _ECVIMemoryRegionIterator(_regions.cbegin());
+	_begIters.emplace_back(_regions.cbegin());
+	return ECVIMemoryRegionIterator(const_cast<void *>(reinterpret_cast<const void *>(&_begIters[_begIters.size() - 1])));
 }
 
 - (ECVIMemoryRegionIterator)regionsEnd
 {
-	return _ECVIMemoryRegionIterator(_regions.cend());
+	_endIters.emplace_back(_regions.cend());
+	return ECVIMemoryRegionIterator(const_cast<void *>(reinterpret_cast<const void *>(&_endIters[_endIters.size() - 1])));
 }
 
 - (const ECVIMemoryRegion &)regionByName:(NSString *)name
@@ -123,10 +118,10 @@ static const _ECVIMemoryRegion ECVIInvalidRegion;
 	if (base == ECVIInvalidRegionAddress) {
 		return ECVIInvalidRegion;
 	}
-	return [self mapRegionOfSize:regionLen withName:regionName atAddress:base];//] allowingOverlap:true];
+	return [self mapRegionOfSize:regionLen withName:regionName atAddress:base empty:false];
 }
 
-- (const ECVIMemoryRegion &)mapRegionOfSize:(uint64_t)regionLen withName:(NSString *)regionName atAddress:(uint64_t)regionBase //allowingOverlap:(bool)overlap
+- (const ECVIMemoryRegion &)mapRegionOfSize:(uint64_t)regionLen withName:(NSString *)regionName atAddress:(uint64_t)regionBase empty:(bool)emptyRegion
 {
 	NSAssert((regionBase & (_pageSize - 1)) == 0, @"base address must be aligned to a page boundary");
 	NSAssert((regionLen & (_pageSize - 1)) == 0, @"length must be a multiple of the page size");
@@ -135,13 +130,13 @@ static const _ECVIMemoryRegion ECVIInvalidRegion;
 		bool doesOverlap = false;
 		
 		for (auto i = self.regionsBegin; i != self.regionsEnd && !doesOverlap; ++i) {
-			if ((*i).baseAddress <= regionBase + regionLen && regionBase <= (*i).baseAddress + (*i).length)
+			if ((*i).baseAddress <= regionBase + regionLen - 1 && regionBase <= (*i).baseAddress + (*i).length - 1)
 				doesOverlap = true;
 		}
 		if (doesOverlap)
 			return ECVIInvalidRegion;
 //	}
-	const ECVIMemoryRegion &region = *(_regions.insert(_ECVIMemoryRegion(regionBase, regionLen, regionName)).first);
+	const ECVIMemoryRegion &region = *(_regions.insert(_ECVIMemoryRegion(regionBase, regionLen, regionName, emptyRegion)).first);
 	
 	if ([self.delegate respondsToSelector:@selector(memoryMap:didMapNewRegion:)]) {
 		[self.delegate memoryMap:self didMapNewRegion:region];
@@ -186,16 +181,16 @@ static const _ECVIMemoryRegion ECVIInvalidRegion;
 	
 	switch (length) {
 		case 1:
-			value = static_cast<uint64_t>(region.area[address - region.baseAddress]);
+			value = static_cast<uint64_t>(reinterpret_cast<uint8_t *>(region.area.mutableBytes)[address - region.baseAddress]);
 			break;
 		case 2:
-			value = static_cast<uint64_t>(reinterpret_cast<uint16_t *>(region.area)[address - region.baseAddress]);
+			value = static_cast<uint64_t>(reinterpret_cast<uint16_t *>(reinterpret_cast<uint8_t *>(region.area.mutableBytes))[address - region.baseAddress]);
 			break;
 		case 4:
-			value = static_cast<uint64_t>(reinterpret_cast<uint32_t *>(region.area)[address - region.baseAddress]);
+			value = static_cast<uint64_t>(reinterpret_cast<uint32_t *>(reinterpret_cast<uint8_t *>(region.area.mutableBytes))[address - region.baseAddress]);
 			break;
 		case 8:
-			value = static_cast<uint64_t>(reinterpret_cast<uint64_t *>(region.area)[address - region.baseAddress]);
+			value = static_cast<uint64_t>(reinterpret_cast<uint64_t *>(reinterpret_cast<uint8_t *>(region.area.mutableBytes))[address - region.baseAddress]);
 			break;
 		default:
 			NSAssert(NO, @"How did we get here?");
@@ -221,16 +216,16 @@ static const _ECVIMemoryRegion ECVIInvalidRegion;
 	
 	switch (length) {
 		case 1:
-			region.area[address - region.baseAddress] = static_cast<uint8_t>(value);
+			reinterpret_cast<uint8_t *>(region.area.mutableBytes)[address - region.baseAddress] = static_cast<uint8_t>(value);
 			break;
 		case 2:
-			reinterpret_cast<uint16_t *>(region.area)[address - region.baseAddress] = static_cast<uint16_t>(value);
+			*reinterpret_cast<uint16_t *>(&reinterpret_cast<uint8_t *>(region.area.mutableBytes)[address - region.baseAddress]) = static_cast<uint16_t>(value);
 			break;
 		case 4:
-			reinterpret_cast<uint32_t *>(region.area)[address - region.baseAddress] = static_cast<uint32_t>(value);
+			*reinterpret_cast<uint32_t *>(&reinterpret_cast<uint8_t *>(region.area.mutableBytes)[address - region.baseAddress]) = static_cast<uint32_t>(value);
 			break;
 		case 8:
-			reinterpret_cast<uint64_t *>(region.area)[address - region.baseAddress] = value;
+			*reinterpret_cast<uint64_t *>(&reinterpret_cast<uint8_t *>(region.area.mutableBytes)[address - region.baseAddress]) = static_cast<uint64_t>(value);
 			break;
 		default:
 			NSAssert(NO, @"How did we get here?");
