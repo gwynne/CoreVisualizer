@@ -10,9 +10,9 @@
 #import <mach-o/loader.h>
 #import <map>
 
-#define LoadError(message) ({ if (error) *error = [NSError errorWithDomain:@"ECVIMachOLoadingErrorDomain_" __FILE__ code:__COUNTER__ userInfo:@{ NSLocalizedDescriptionKey: message }]; false; })
+#define LoadError(rval, message) ({ if (error) *error = [NSError errorWithDomain:@"ECVIMachOLoadingErrorDomain_" __FILE__ code:__COUNTER__ userInfo:@{ NSLocalizedDescriptionKey: message }]; rval; })
 
-@class ECVIMachOLoadCommand, ECVIMachOSymbol, ECVIMachOEntryCommand, EVCIMachODynamicInfoCommands;
+@class ECVIMachOLoadCommand, ECVIMachOSymbol, ECVIMachOEntryCommand, ECVIMachOSegmentCommand, EVCIMachODynamicInfoCommands;
 
 @interface ECVIMachOBinary : NSObject
 
@@ -25,8 +25,8 @@
 @property(nonatomic,readonly) cpu_subtype_t cpusubtype;
 @property(nonatomic,readonly) bool is64Bit;
 @property(nonatomic,readonly) NSArray *loadCommandList;
-@property(nonatomic,readonly) uint64_t textVMAddr;
 @property(nonatomic,readonly) NSArray *segments;
+@property(nonatomic,readonly) ECVIMachOSegmentCommand *textSegment;
 @property(nonatomic,readonly) NSUUID *uuid;
 @property(nonatomic,readonly) std::map<NSString *, ECVIMachOSymbol *> symbolTable;
 

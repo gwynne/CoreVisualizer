@@ -7,6 +7,7 @@
 //
 
 #import "ECVIMachOEntryCommand.h"
+#import "ECVIMachOSegmentCommand.h"
 #import "ECVIMachOBinary.h"
 
 struct arch_thread_command {
@@ -79,7 +80,7 @@ enum {
 {
 	[super awakeFromBinary];
 	if (self.baseCommand->cmd == LC_MAIN) {
-		_entryAddress += self.binary.textVMAddr;
+		_entryAddress += self.binary.textSegment.loadAddress;
 	}
 }
 
