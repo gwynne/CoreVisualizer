@@ -22,6 +22,8 @@
 		FAC90FAB1839BD5400F21302 /* ECVIA6AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = FAC90FAA1839BD5400F21302 /* ECVIA6AppDelegate.m */; };
 		FAC90FAD1839BD5400F21302 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FAC90FAC1839BD5400F21302 /* Images.xcassets */; };
 		FAC90FC81839C6A200F21302 /* ECVIMachOFatBinary.mm in Sources */ = {isa = PBXBuildFile; fileRef = FAC90FC71839C6A200F21302 /* ECVIMachOFatBinary.mm */; };
+		FAC90FCD183B371C00F21302 /* ECVIBinaryWindowController.mm in Sources */ = {isa = PBXBuildFile; fileRef = FAC90FCB183B371C00F21302 /* ECVIBinaryWindowController.mm */; };
+		FAC90FCE183B371C00F21302 /* ECVIBinaryWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = FAC90FCC183B371C00F21302 /* ECVIBinaryWindowController.xib */; };
 		FACE76AE1837DC7B0076B845 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FACE76AD1837DC7B0076B845 /* Cocoa.framework */; };
 		FACE76B81837DC7B0076B845 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = FACE76B61837DC7B0076B845 /* InfoPlist.strings */; };
 		FACE76BA1837DC7B0076B845 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = FACE76B91837DC7B0076B845 /* main.m */; };
@@ -76,6 +78,9 @@
 		FAC90FAC1839BD5400F21302 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		FAC90FC61839C6A200F21302 /* ECVIMachOFatBinary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ECVIMachOFatBinary.h; path = CoreVisualizer/ECVIMachOFatBinary.h; sourceTree = "<group>"; };
 		FAC90FC71839C6A200F21302 /* ECVIMachOFatBinary.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ECVIMachOFatBinary.mm; path = CoreVisualizer/ECVIMachOFatBinary.mm; sourceTree = "<group>"; };
+		FAC90FCA183B371C00F21302 /* ECVIBinaryWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ECVIBinaryWindowController.h; path = CoreVisualizer/ECVIBinaryWindowController.h; sourceTree = "<group>"; };
+		FAC90FCB183B371C00F21302 /* ECVIBinaryWindowController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ECVIBinaryWindowController.mm; path = CoreVisualizer/ECVIBinaryWindowController.mm; sourceTree = "<group>"; };
+		FAC90FCC183B371C00F21302 /* ECVIBinaryWindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = ECVIBinaryWindowController.xib; path = CoreVisualizer/ECVIBinaryWindowController.xib; sourceTree = "<group>"; };
 		FACE76AA1837DC7B0076B845 /* CoreVisualizer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CoreVisualizer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FACE76AD1837DC7B0076B845 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		FACE76B01837DC7B0076B845 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -183,6 +188,16 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		FAC90FC9183B36FF00F21302 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				FAC90FCA183B371C00F21302 /* ECVIBinaryWindowController.h */,
+				FAC90FCB183B371C00F21302 /* ECVIBinaryWindowController.mm */,
+				FAC90FCC183B371C00F21302 /* ECVIBinaryWindowController.xib */,
+			);
+			name = UI;
+			sourceTree = "<group>";
+		};
 		FACE76A11837DC7B0076B845 = {
 			isa = PBXGroup;
 			children = (
@@ -191,6 +206,7 @@
 				FACE76E91837E2ED0076B845 /* Memory maps */,
 				FACE76E21837DF870076B845 /* CPU cores */,
 				FAC90F7B1838621400F21302 /* Instance */,
+				FAC90FC9183B36FF00F21302 /* UI */,
 				FACE76B31837DC7B0076B845 /* CoreVisualizer */,
 				FACE76D11837DC7B0076B845 /* CoreVisualizerTests */,
 				FAC90FA01839BD5400F21302 /* CoreVisualizerARM64Experiment */,
@@ -414,6 +430,7 @@
 				FACE76C61837DC7B0076B845 /* Images.xcassets in Resources */,
 				FACE76BE1837DC7B0076B845 /* Credits.rtf in Resources */,
 				FACE76C41837DC7B0076B845 /* MainMenu.xib in Resources */,
+				FAC90FCE183B371C00F21302 /* ECVIBinaryWindowController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -453,6 +470,7 @@
 				FAC90F8B1839305200F21302 /* ECVIMachOLoadCommand.mm in Sources */,
 				FAC90F791838401200F21302 /* ECVIAppleA7CPUCore.mm in Sources */,
 				FACE76C11837DC7B0076B845 /* ECVIAppDelegate.m in Sources */,
+				FAC90FCD183B371C00F21302 /* ECVIBinaryWindowController.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -22,8 +22,6 @@
 
 @implementation ECVIInstance
 {
-	ECVIAppleA7CPUCore *_core;
-	ECVIMemoryMap *_map;
 	NSArray *_loadedImages;
 }
 
@@ -41,16 +39,39 @@
 
 - (void)reset
 {
-	std::vector<const ECVIMemoryRegion *> regions;
-	
-	for (auto i = _map.regionsBegin; i != _map.regionsEnd; ++i) {
-		regions.push_back(&(*i));
-	}
-	for (auto i = regions.begin(); i != regions.end(); ++i) {
-		[_map unmapRegion:*(*i)];
-	}
-	
+	[_map unmapAllRegions];
+	[self mapMemoryRegionsFromImage:_loadedImages[0] error:NULL];
 	[_core reset];
+}
+
+- (bool)mapMemoryRegionsFromImage:(ECVIMachOBinary *)image error:(NSError * __autoreleasing *)error
+{
+	__block bool didFailImage = false;
+	
+	[image.segments enumerateObjectsUsingBlock:^ (ECVIMachOSegmentCommand *seg, NSUInteger idx, BOOL *stop) {
+		ECVIMemoryRegion *region = nil;
+		
+		if (seg.maximumPermissions == 0) {
+			region = [self->_map mapVirtualRegionOfSize:seg.loadedSize withName:seg.name atAddress:seg.loadAddress];
+		} else if ((seg.maximumPermissions & VM_PROT_WRITE) != 0) {
+			region = [self->_map mapExternalRegionWithMutableBacking:[NSMutableData dataWithBytes:(void *)seg.segmentBase length:seg.loadedSize] withName:seg.name atAddress:seg.loadAddress];
+		} else {
+			region = [self->_map mapExternalRegionWithBacking:[NSData dataWithBytesNoCopy:(void *)seg.segmentBase length:seg.loadedSize freeWhenDone:NO] withName:seg.name atAddress:seg.loadAddress];
+		}
+		
+		if (!region) {
+			*stop = YES;
+			didFailImage = true;
+		}
+	}];
+	if (didFailImage)
+		return LoadError(false, @"Failed to map a segment");
+
+	ECVIMachOEntryCommand *entry = (ECVIMachOEntryCommand *)[image loadCommandOfType:LC_MAIN];
+	
+	_core.startPC = entry.entryAddress;
+	[_map mapInternalRegionOfSize:entry.initialStackSize withName:@"__STACK"];
+	return true;
 }
 
 - (bool)loadBinary:(NSURL *)binary error:(NSError * __autoreleasing *)error
@@ -65,22 +86,8 @@
 	if (!image)
 		return LoadError(false, @"Only loading ARM64 binaries right now");
 	
-	__block bool didFailImage = false;
-	
-	[image.segments enumerateObjectsUsingBlock:^ (ECVIMachOSegmentCommand *seg, NSUInteger idx, BOOL *stop) {
-		if ([self->_map mapRegionOfSize:seg.loadedSize withName:seg.name atAddress:seg.loadAddress empty:[seg.name isEqualToString:@"__PAGEZERO"]].baseAddress == ECVIInvalidRegionAddress) {
-			*stop = YES;
-			didFailImage = true;
-		}
-	}];
-	if (didFailImage)
-		return LoadError(false, @"Failed to map a segment");
-	
-	ECVIMachOEntryCommand *entry = (ECVIMachOEntryCommand *)[image loadCommandOfType:LC_MAIN];
-	
-	_core.startPC = entry.entryAddress;
-	[_map mapRegionOfSize:entry.initialStackSize withName:@"__STACK"];
-	[_core reset];
+	if (![self mapMemoryRegionsFromImage:image error:error])
+		return false;
 	
 	_loadedImages = @[image];
 	return true;
@@ -92,39 +99,34 @@
 	
 	[desc appendFormat:@"Core visualizer instance %@\n", [super description]];
 	[desc appendFormat:@"CPU core: %@\n", _core];
-	[desc appendFormat:@"Memory maps:\n"];
-	for (auto i = _map.regionsBegin; i != _map.regionsEnd; ++i) {
-		const ECVIMemoryRegion &region = *i;
-		
-		[desc appendFormat:@"%@: 0x%016llx - 0x%016llx (0x%llx bytes)\n", region.name, region.baseAddress, region.baseAddress + region.length - 1, region.length];
-	}
-	[desc appendFormat:@"\nLoaded images:\n"];
+	[desc appendFormat:@"%@\n", _map];
+	[desc appendFormat:@"Loaded images:\n"];
 	[_loadedImages enumerateObjectsUsingBlock:^ (ECVIMachOBinary *binary, NSUInteger idx, BOOL *stop) {
 		const NXArchInfo *ai = NXGetArchInfoFromCpuType(binary.cputype, binary.cpusubtype);
 
 		[desc appendFormat:@"%@ (%@):\n", binary.url.lastPathComponent, binary.uuid];
-		[desc appendFormat:@"Arch: %s (%d/%d)\n", ai ? ai->name : "(unknown)", ai ? ai->cputype : binary.cputype, ai ? ai->cpusubtype : binary.cpusubtype];
-		[desc appendFormat:@"Loaded from: %@\n", binary.url];
-		[desc appendFormat:@"Address in memory: 0x%016llx\n", reinterpret_cast<uint64_t>(binary.loadAddress)];
-		[desc appendFormat:@"Type: %u (%d-bit)\n", binary.type, binary.is64Bit ? 64 : 32];
-		[desc appendFormat:@"Load commands:\n"];
+		[desc appendFormat:@"\tArch: %s (%d/%d)\n", ai ? ai->name : "(unknown)", ai ? ai->cputype : binary.cputype & ~CPU_ARCH_MASK, ai ? ai->cpusubtype : binary.cpusubtype & ~CPU_SUBTYPE_MASK];
+		[desc appendFormat:@"\tLoaded from: %@\n", binary.url];
+		[desc appendFormat:@"\tAddress in memory: 0x%016llx\n", reinterpret_cast<uint64_t>(binary.loadAddress)];
+		[desc appendFormat:@"\tType: %u (%d-bit)\n", binary.type, binary.is64Bit ? 64 : 32];
+		[desc appendFormat:@"\tLoad commands:\n"];
 		[binary.loadCommandList enumerateObjectsUsingBlock:^ (ECVIMachOLoadCommand *cmd, NSUInteger idx2, BOOL *stop2) {
-			[desc appendFormat:@"\tcmd %u size %llu\n", cmd.type, cmd.size];
+			[desc appendFormat:@"\t\tcmd %u size %llu\n", cmd.type & ~LC_REQ_DYLD, cmd.size];
 		}];
-		[desc appendFormat:@"Segments:\n"];
+		[desc appendFormat:@"\tSegments:\n"];
 		[binary.segments enumerateObjectsUsingBlock:^ (ECVIMachOSegmentCommand *seg, NSUInteger idx2, BOOL *stop2) {
-			[desc appendFormat:@"\t%@ - VM 0x%016llx + 0x%llx (@ 0x%016llx)\n", seg.name, seg.loadAddress, seg.loadedSize, reinterpret_cast<uint64_t>(seg.segmentBase)];
-			[desc appendFormat:@"\tPermissions %x (max %x)\n", seg.initialPermissions, seg.maximumPermissions];
-			[desc appendFormat:@"\tSections:\n"];
+			[desc appendFormat:@"\t\t%@ - VM 0x%016llx + 0x%llx (@ 0x%016llx)\n", seg.name, seg.loadAddress, seg.loadedSize, reinterpret_cast<uint64_t>(seg.segmentBase)];
+			[desc appendFormat:@"\t\t\tPermissions %x (max %x)\n", seg.initialPermissions, seg.maximumPermissions];
+			[desc appendFormat:@"\t\t\tSections:\n"];
 			[seg.sections enumerateObjectsUsingBlock:^ (ECVIMachOSection *sect, NSUInteger idx3, BOOL *stop3) {
-				[desc appendFormat:@"\t\t%@ (type %u) - VM 0x%016llx + 0x%llx (@ 0x%016llx)\n", sect.name, sect.type, sect.loadAddress, sect.loadedSize, reinterpret_cast<uint64_t>(sect.sectionBase)];
+				[desc appendFormat:@"\t\t\t\t%@ (type %u) - VM 0x%016llx + 0x%llx (@ 0x%016llx)\n", sect.name, sect.type, sect.loadAddress, sect.loadedSize, reinterpret_cast<uint64_t>(sect.sectionBase)];
 			}];
 		}];
-		[ desc appendFormat:@"Symbols:\n"];
+		[ desc appendFormat:@"\tSymbols:\n"];
 		for (auto i = binary.symbolTable.begin(); i != binary.symbolTable.end(); ++i) {
 			ECVIMachOSymbol *sym = (*i).second;
 			
-			[desc appendFormat:@"\t%u: 0x%016llx = %@ (type %hhu)\n", sym.idx, sym.address, sym.rawName, sym.type];
+			[desc appendFormat:@"\t\t%u: 0x%016llx = %@ (type %hhu)\n", sym.idx, sym.address, sym.rawName, sym.type];
 		}
 	}];
 	return desc;
@@ -138,36 +140,58 @@
 - (void)CPUcore:(ECVIGenericCPUCore *)core didUpdateRegister:(uint32_t)rnum toValue:(uint64_t)value
 {
 	NSLog(@"Register %u updated to %llu!", rnum, value);
+	if ([self.delegate respondsToSelector:_cmd])
+		[self.delegate CPUcore:core didUpdateRegister:rnum toValue:value];
 }
 
-- (void)memoryMap:(ECVIMemoryMap *)memoryMap didMapNewRegion:(const ECVIMemoryRegion &)region
+- (void)memoryMap:(ECVIMemoryMap *)memoryMap didMapNewRegion:(ECVIMemoryRegion *)region
 {
-	NSLog(@"Mapped region %@ at 0x%016llx + 0x%llx", region.name, region.baseAddress, region.length);
+	NSLog(@"Mapped region %@", region);
+	if ([self.delegate respondsToSelector:_cmd])
+		[self.delegate memoryMap:memoryMap didMapNewRegion:region];
 }
 
-- (void)memoryMap:(ECVIMemoryMap *)memoryMap didUnmapRegion:(const ECVIMemoryRegion &)region
+- (void)memoryMap:(ECVIMemoryMap *)memoryMap didUnmapRegion:(ECVIMemoryRegion *)region
 {
-	NSLog(@"Unmapped region %@", region.name);
+	NSLog(@"Unmapped region %@", region);
+	if ([self.delegate respondsToSelector:_cmd])
+		[self.delegate memoryMap:memoryMap didUnmapRegion:region];
 }
 
-- (void)memoryMap:(ECVIMemoryMap *)memoryMap didSeeReadFromAddress:(uint64_t)address ofSize:(uint64_t)readLen ofValue:(uint64_t)value inRegion:(const ECVIMemoryRegion &)region
+- (void)memoryMap:(ECVIMemoryMap *)memoryMap didSeeReadFromAddress:(uint64_t)address ofSize:(uint64_t)readLen ofValue:(uint128_t)value inRegion:(ECVIMemoryRegion *)region
 {
-	NSLog(@"Read from 0x%016llx size %llu in %@ == 0x%016llx", address, readLen, region.name, value);
+	if (readLen > 8) {
+		NSLog(@"Read from 0x%016llx size %llu in %@ == 0x%016llx%016llx", address, readLen, region.name, (uint64_t)(value >> 64), (uint64_t)(value & (uint128_t)UINT64_MAX));
+	} else {
+		NSLog(@"Read from 0x%016llx size %llu in %@ == 0x%0*llx", address, readLen, region.name, (int)readLen << 1, (uint64_t)(value & (uint128_t)UINT64_MAX));
+	}
+	if ([self.delegate respondsToSelector:_cmd])
+		[self.delegate memoryMap:memoryMap didSeeReadFromAddress:address ofSize:readLen ofValue:value inRegion:region];
 }
 
 - (void)memoryMap:(ECVIMemoryMap *)memoryMap didSeeReadFromUnmappedAddress:(uint64_t)address ofSize:(uint64_t)readLen
 {
 	NSLog(@"Unmapped read from 0x%016llx size %llu", address, readLen);
+	if ([self.delegate respondsToSelector:_cmd])
+		[self.delegate memoryMap:memoryMap didSeeReadFromUnmappedAddress:address ofSize:readLen];
 }
 
-- (void)memoryMap:(ECVIMemoryMap *)memoryMap didSeeWriteToAddress:(uint64_t)address ofSize:(uint64_t)writeLen ofValue:(uint64_t)value inRegion:(const ECVIMemoryRegion &)region
+- (void)memoryMap:(ECVIMemoryMap *)memoryMap didSeeWriteToAddress:(uint64_t)address ofSize:(uint64_t)writeLen ofValue:(uint128_t)value inRegion:(ECVIMemoryRegion *)region
 {
-	NSLog(@"Write to 0x%016llx size %llu in %@ == 0x%016llx", address, writeLen, region.name, value);
+	if (writeLen > 8) {
+		NSLog(@"Write to 0x%016llx size %llu in %@ == 0x%016llx%016llx", address, writeLen, region.name, (uint64_t)(value >> 64), (uint64_t)(value & (uint128_t)UINT64_MAX));
+	} else {
+		NSLog(@"Write to 0x%016llx size %llu in %@ == 0x%0*llx", address, writeLen, region.name, (int)writeLen << 1, (uint64_t)(value & (uint128_t)UINT64_MAX));
+	}
+	if ([self.delegate respondsToSelector:_cmd])
+		[self.delegate memoryMap:memoryMap didSeeWriteToAddress:address ofSize:writeLen ofValue:value inRegion:region];
 }
 
 - (void)memoryMap:(ECVIMemoryMap *)memoryMap didSeeWriteToUnmappedAddress:(uint64_t)address ofSize:(uint64_t)writeLen
 {
 	NSLog(@"Unmapped write to 0x%016llx size %llu", address, writeLen);
+	if ([self.delegate respondsToSelector:_cmd])
+		[self.delegate memoryMap:memoryMap didSeeWriteToUnmappedAddress:address ofSize:writeLen];
 }
 
 @end

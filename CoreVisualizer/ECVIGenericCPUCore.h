@@ -21,6 +21,12 @@
 - (void)reset;
 - (void)step;
 
+// State examiners
+@property(nonatomic,readonly) uint32_t numRegisters;
+- (NSString *)nameForRegister:(uint32_t)rnum;
+- (uint64_t)sizeOfRegister:(uint32_t)rnum;
+- (uint128_t)valueForRegister:(uint32_t)rnum;
+
 @end
 
 @protocol ECVIGenericCPUCoreDelegate <NSObject>

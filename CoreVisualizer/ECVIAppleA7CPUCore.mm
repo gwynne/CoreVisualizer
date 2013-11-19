@@ -9,6 +9,22 @@
 #import "ECVIAppleA7CPUCore.h"
 #import "ECVIMemoryMap.h"
 
+static const uint32_t R_x[32] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31 },
+					  R_sp = 32, R_pc = 33, R_nzcv = 34,
+					  R_v[32] = { 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66 },
+					  R_fpsr = 67, R_fpcr = 68;
+
+#define updateRegister(reg, value) do {	\
+	reg = value;	\
+	if (delegateCares)	\
+		[delegate CPUcore:outerCore didUpdateRegister:R_ ## reg toValue:reg];	\
+} while (0)
+#define updateFlags(n_, z_, c_, v_) do {	\
+	n = n_; z = z_; c = c_; vv = v_;	\
+	if (delegateCares)	\
+		[delegate CPUcore:outerCore didUpdateRegister:R_nzcv toValue:(n << 3) | (z << 2) | (c << 1) | vv];	\
+} while (0)
+
 class ECVIARMv8Core {
 
 	public:
@@ -20,7 +36,9 @@ class ECVIARMv8Core {
 		uint32_t fpsr;
 		bool n, z, c, vv;
 		
+		ECVIAppleA7CPUCore *outerCore;
 		ECVIMemoryMap *map;
+		bool delegateCares;
 		id<ECVIGenericCPUCoreDelegate> __weak delegate;
 		
 		void reset(uint64_t startPC);
@@ -39,6 +57,7 @@ class ECVIARMv8Core {
 {
 	if ((self = [super initWithMemoryMap:memoryMap])) {
 		innerCore.map = memoryMap;
+		innerCore.outerCore = self;
 	}
 	return self;
 }
@@ -51,6 +70,7 @@ class ECVIARMv8Core {
 - (void)setDelegate:(id<ECVIGenericCPUCoreDelegate>)delegate
 {
 	innerCore.delegate = delegate;
+	innerCore.delegateCares = [innerCore.delegate respondsToSelector:@selector(CPUcore:didUpdateRegister:toValue:)];
 }
 
 - (void)reset
@@ -87,6 +107,49 @@ class ECVIARMv8Core {
 	return desc;
 }
 
+- (uint32_t)numRegisters
+{
+	return 32/*gpr*/ + 3/*sp,pc,nzcv*/ + 32/*fpr*/ + 2/*fpsr,fpcr*/;
+}
+
+- (NSString *)nameForRegister:(uint32_t)rnum
+{
+	static NSString * const registerNames[] = {
+		@"x0", @"x1", @"x2", @"x3", @"x4", @"x5", @"x6", @"x7", @"x8", @"x9", @"x10", @"x11", @"x12", @"x13", @"x14", @"x15", @"x16", @"x17", @"x18", @"x19", @"x20",
+		@"x21", @"x22", @"x23", @"x24", @"x25", @"x26", @"x27", @"x28", @"fp", @"lr", @"zr", @"sp", @"pc", @"nzcv", @"v0", @"v1", @"v2", @"v3", @"v4", @"v5", @"v6",
+		@"v7", @"v8", @"v9", @"v10", @"v11", @"v12", @"v13", @"v14", @"v15", @"v16", @"v17", @"v18", @"v19", @"v20", @"v21", @"v22", @"v23", @"v24", @"v25", @"v26",
+		@"v27", @"v28", @"v29", @"v30", @"v31", @"fpsr", @"fpcr"
+	};
+	
+	return rnum < self.numRegisters ? registerNames[rnum] : nil;
+}
+
+- (uint64_t)sizeOfRegister:(uint32_t)rnum
+{
+	return (rnum < 34/*gpr,sp,pc*/ ? 8 : (rnum == 34/*nzcv*/ ? 1 : (rnum < 67/*fpr*/ ? 16 : (rnum < 69/*fpsr,fpcr*/ ? 4 : 0))));
+}
+
+- (uint128_t)valueForRegister:(uint32_t)rnum
+{
+	if (rnum < 32) {
+		return innerCore.x[rnum];
+	} else if (rnum == 32) {
+		return innerCore.sp;
+	} else if (rnum == 33) {
+		return innerCore.pc;
+	} else if (rnum == 34) {
+		return (innerCore.n << 3) | (innerCore.z << 2) | (innerCore.c << 1) | innerCore.vv;
+	} else if (rnum < 67) {
+		return innerCore.v[rnum];
+	} else if (rnum == 67) {
+		return innerCore.fpsr;
+	} else if (rnum == 68) {
+		return innerCore.fpcr;
+	} else {
+		return 0;
+	}
+}
+
 @end
 
 void ECVIARMv8Core::reset(uint64_t startPC)
@@ -107,22 +170,24 @@ void ECVIARMv8Core::step()
 {
 	uint32_t opcode = [map readValueOfLength:sizeof(uint32_t) fromAddress:pc];
 	
-	if ((opcode & 0x7fe00000) == 0x1c0) { // adc
+	if ((opcode & 0x7fe00000) == 0x1c000000) { // adc
 		uint32_t d = (opcode & 0x0000001f),
 				 nn = (opcode & 0x000003e0) >> 5,
 				 m = (opcode & 0x001f0000) >> 16;
 		
 		if ((opcode & 0x80000000)) {
-			__uint128_t r = x[nn] + x[m] + !!c;
-			
-			x[d] = r & 0xffffffffffffffff;
-			n = x[d] & 0x8000000000000000 ? true : false;
-			z = x[d] == 0;
-			c = r == x[d];
-			vv = (__int128_t)r == (__int128_t)((int64_t)x[d]);
+			uint128_t r = x[nn] + x[m] + !!c;
+
+			updateRegister(x[d], r & 0xffffffffffffffff);
+			updateFlags(x[d] & 0x8000000000000000 ? true : false,
+						x[d] == 0,
+						r == x[d],
+						(int128_t)r == (int128_t)((int64_t)x[d])
+			);
 		}
 	} else {
 		NSLog(@"UNKNOWN OPCODE 0x%08x", opcode);
 	}
+	updateRegister(pc, pc + 4);
 	pc += 4;
 }

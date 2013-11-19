@@ -11,68 +11,74 @@
 #import <cstdlib>
 #import <vector>
 
-class _ECVIMemoryRegion : public ECVIMemoryRegion {
-	
-	public:
-		NSMutableData *area;
-		
-		_ECVIMemoryRegion(void) : ECVIMemoryRegion() {
-			baseAddress = ECVIInvalidRegionAddress;
-			length = 0;
-			name = nil;
-			area = nil;
-		}
-		_ECVIMemoryRegion(uint64_t base, uint64_t len, NSString *label, bool empty) : ECVIMemoryRegion() {
-			baseAddress = base;
-			length = len;
-			name = label;
-			area = empty ? nil : [NSMutableData dataWithLength:len];
-		}
-		virtual ~_ECVIMemoryRegion();
-		
-		bool operator==(const ECVIMemoryRegion &r) const { return r.baseAddress == baseAddress && r.length == length && (r.name == name || [r.name isEqualToString:name]); }
-		bool operator==(const _ECVIMemoryRegion &r) const { return r.baseAddress == baseAddress && r.length == length && (r.name == name || [r.name isEqualToString:name]); }
-		bool operator!=(const ECVIMemoryRegion &r) const { return !(*this == r); }
-		bool operator!=(const _ECVIMemoryRegion &r) const { return !(r == *this); }
-		bool operator<(const ECVIMemoryRegion &r) const { return baseAddress < r.baseAddress; }
-		bool operator<(const _ECVIMemoryRegion &r) const { return baseAddress < r.baseAddress; }
-		bool operator<=(const ECVIMemoryRegion &r) const { return baseAddress <= r.baseAddress; }
-		bool operator<=(const _ECVIMemoryRegion &r) const { return baseAddress <= r.baseAddress; }
-		bool operator>(const ECVIMemoryRegion &r) const { return baseAddress > r.baseAddress; }
-		bool operator>(const _ECVIMemoryRegion &r) const { return baseAddress > r.baseAddress; }
-		bool operator>=(const ECVIMemoryRegion &r) const { return baseAddress >= r.baseAddress; }
-		bool operator>=(const _ECVIMemoryRegion &r) const { return baseAddress >= r.baseAddress; }
-};
+@interface ECVIMemoryRegion ()
+@property(nonatomic,readwrite,weak) ECVIMemoryMap *map;
+@end
 
-_ECVIMemoryRegion::~_ECVIMemoryRegion()
+@implementation ECVIMemoryRegion
+
+- (instancetype)initWithInternalBackingOfLength:(uint64_t)length atAddress:(uint64_t)baseAddress name:(NSString *)name inMap:(ECVIMemoryMap *)map
 {
+	return [self initWithMutableExternalBacking:[[NSMutableData alloc] initWithLength:length] atAddress:baseAddress name:name inMap:map];
 }
 
-typedef std::set<_ECVIMemoryRegion>::const_iterator *__ECVIMemoryRegionIteratorInternal2;
+- (instancetype)initWithVirtualBackingOfLength:(uint64_t)length atAddress:(uint64_t)baseAddress name:(NSString *)name inMap:(ECVIMemoryMap *)map
+{
+	if ((self = [self initWithExternalBacking:nil atAddress:baseAddress name:name inMap:map])) {
+		_length = length;
+		_lastAddress = _baseAddress + _length - 1;
+	}
+	return self;
+}
 
-ECVIMemoryRegionIterator::ECVIMemoryRegionIterator(void) : internal(nullptr) {}
-ECVIMemoryRegionIterator::ECVIMemoryRegionIterator(__ECVIMemoryRegionIteratorInternal internal_) : internal(internal_) {}
-ECVIMemoryRegionIterator::ECVIMemoryRegionIterator(const ECVIMemoryRegionIterator &i) : internal(i.internal) {}
-ECVIMemoryRegionIterator::~ECVIMemoryRegionIterator() {}
-ECVIMemoryRegionIterator &ECVIMemoryRegionIterator::operator++(void) { ++(*reinterpret_cast<__ECVIMemoryRegionIteratorInternal2>(internal)); return *this; }
-ECVIMemoryRegionIterator ECVIMemoryRegionIterator::operator++(int) { ECVIMemoryRegionIterator tmp(*this); operator++(); return tmp; }
-ECVIMemoryRegionIterator &ECVIMemoryRegionIterator::operator--(void) { --(*reinterpret_cast<__ECVIMemoryRegionIteratorInternal2>(internal)); return *this; }
-ECVIMemoryRegionIterator ECVIMemoryRegionIterator::operator--(int) { ECVIMemoryRegionIterator tmp(*this); operator--(); return tmp; }
-bool ECVIMemoryRegionIterator::operator==(const ECVIMemoryRegionIterator &i) const { return *reinterpret_cast<__ECVIMemoryRegionIteratorInternal2>(internal) == *reinterpret_cast<__ECVIMemoryRegionIteratorInternal2>(i.internal); }
-bool ECVIMemoryRegionIterator::operator!=(const ECVIMemoryRegionIterator &i) const { return *reinterpret_cast<__ECVIMemoryRegionIteratorInternal2>(internal) != *reinterpret_cast<__ECVIMemoryRegionIteratorInternal2>(i.internal); }
-ECVIMemoryRegionIterator::reference ECVIMemoryRegionIterator::operator*(void) const { return *(*reinterpret_cast<__ECVIMemoryRegionIteratorInternal2>(internal)); }
+- (instancetype)initWithExternalBacking:(NSData *)backing atAddress:(uint64_t)baseAddress name:(NSString *)name inMap:(ECVIMemoryMap *)map
+{
+	if ((self = [super init])) {
+		_map = map;
+		_baseAddress = baseAddress;
+		_length = backing.length;
+		_lastAddress = _baseAddress + _length - 1;
+		_name = name;
+		_backing = backing;
+		_bytes = reinterpret_cast<const uint8_t *>(_backing.bytes);
+		_words = reinterpret_cast<const uint16_t *>(_bytes);
+		_longs = reinterpret_cast<const uint32_t *>(_words);
+		_quads = reinterpret_cast<const uint64_t *>(_longs);
+		_octets = reinterpret_cast<const uint128_t *>(_quads);
+	}
+	return self;
+}
 
-static const _ECVIMemoryRegion ECVIInvalidRegion;
+- (instancetype)initWithMutableExternalBacking:(NSMutableData *)backing atAddress:(uint64_t)baseAddress name:(NSString *)name inMap:(ECVIMemoryMap *)map
+{
+	NSAssert(backing != nil, @"Mutable backing can't be nil!");
+	
+	if ((self = [self initWithExternalBacking:backing atAddress:baseAddress name:name inMap:map])) {
+		_mutableBacking = backing;
+		_mutableBytes = reinterpret_cast<uint8_t *>(_mutableBacking.mutableBytes);
+		_mutableWords = reinterpret_cast<uint16_t *>(_mutableBytes);
+		_mutableLongs = reinterpret_cast<uint32_t *>(_mutableWords);
+		_mutableQuads = reinterpret_cast<uint64_t *>(_mutableLongs);
+		_mutableOctets = reinterpret_cast<uint128_t *>(_mutableQuads);
+	}
+	return self;
+}
+
+- (NSString *)description
+{
+	return [NSString stringWithFormat:@"Region %@ (%@): 0x%016llx - 0x%016llx (0x%llx bytes)", self.name, self.backing ? (self.mutableBacking ? @"writeable" : @"external") : @"virtual", self.baseAddress, self.lastAddress, self.length];
+}
+
+@end
 
 @interface ECVIMemoryMap ()
-@property(nonatomic,assign) std::set<_ECVIMemoryRegion> regions;
-- (const _ECVIMemoryRegion &)regionContainingAddress:(uint64_t)address;
+- (ECVIMemoryRegion *)regionContainingAddress:(uint64_t)address;
 - (uint64_t)findEmptyRegionofSize:(uint64_t)regionLen;
 @end
 
 @implementation ECVIMemoryMap
 {
-	std::vector<std::set<_ECVIMemoryRegion>::const_iterator> _begIters, _endIters;
+	NSMutableArray *_regions;
 }
 
 - (instancetype)initWithPageSize:(uint64_t)pageSize
@@ -80,121 +86,144 @@ static const _ECVIMemoryRegion ECVIInvalidRegion;
 	NSAssert(__builtin_popcount(pageSize) == 1, @"page size must be a power of two");
 		
 	if ((self = [super init])) {
-		_regions.clear();
+		_regions = @[].mutableCopy;
 		_pageSize = pageSize;
 	}
 	return self;
 }
 
-- (ECVIMemoryRegionIterator)regionsBegin
+- (ECVIMemoryRegion *)regionByName:(NSString *)name
 {
-	_begIters.emplace_back(_regions.cbegin());
-	return ECVIMemoryRegionIterator(const_cast<void *>(reinterpret_cast<const void *>(&_begIters[_begIters.size() - 1])));
+	NSUInteger idx = [_regions indexOfObjectPassingTest:^ BOOL (ECVIMemoryRegion *region, NSUInteger idx, BOOL *stop) { return *stop = [region.name isEqualToString:name]; }];
+	
+	return idx == NSNotFound ? nil : _regions[idx];
 }
 
-- (ECVIMemoryRegionIterator)regionsEnd
+- (ECVIMemoryRegion *)mapRegion:(ECVIMemoryRegion *)region
 {
-	_endIters.emplace_back(_regions.cend());
-	return ECVIMemoryRegionIterator(const_cast<void *>(reinterpret_cast<const void *>(&_endIters[_endIters.size() - 1])));
-}
-
-- (const ECVIMemoryRegion &)regionByName:(NSString *)name
-{
-	for (auto i = self.regionsBegin; i != self.regionsEnd; ++i) {
-		const ECVIMemoryRegion &r = *i;
-		
-		if ([r.name isEqualToString:name])
-			return r;
+	NSAssert((region.baseAddress & (_pageSize - 1)) == 0, @"base address must be aligned to a page boundary");
+	NSAssert((region.length & (_pageSize - 1)) == 0, @"length must be a multiple of the page size");
+	
+	if (!region || [_regions indexesOfObjectsPassingTest:^ BOOL (ECVIMemoryRegion *reg, NSUInteger idx, BOOL *stop) { return (*stop = reg.baseAddress <= region.lastAddress && region.baseAddress <= reg.lastAddress); }].count > 0) {
+		return nil;
 	}
-	return ECVIInvalidRegion;
-}
-
-- (const ECVIMemoryRegion &)mapRegionOfSize:(uint64_t)regionLen withName:(NSString *)regionName
-{
-	NSAssert((regionLen & (_pageSize - 1)) == 0, @"length must be a multiple of the page size");
-	
-	uint64_t base = [self findEmptyRegionofSize:regionLen];
-	
-	if (base == ECVIInvalidRegionAddress) {
-		return ECVIInvalidRegion;
-	}
-	return [self mapRegionOfSize:regionLen withName:regionName atAddress:base empty:false];
-}
-
-- (const ECVIMemoryRegion &)mapRegionOfSize:(uint64_t)regionLen withName:(NSString *)regionName atAddress:(uint64_t)regionBase empty:(bool)emptyRegion
-{
-	NSAssert((regionBase & (_pageSize - 1)) == 0, @"base address must be aligned to a page boundary");
-	NSAssert((regionLen & (_pageSize - 1)) == 0, @"length must be a multiple of the page size");
-	
-//	if (!overlap) {
-		bool doesOverlap = false;
-		
-		for (auto i = self.regionsBegin; i != self.regionsEnd && !doesOverlap; ++i) {
-			if ((*i).baseAddress <= regionBase + regionLen - 1 && regionBase <= (*i).baseAddress + (*i).length - 1)
-				doesOverlap = true;
-		}
-		if (doesOverlap)
-			return ECVIInvalidRegion;
-//	}
-	const ECVIMemoryRegion &region = *(_regions.insert(_ECVIMemoryRegion(regionBase, regionLen, regionName, emptyRegion)).first);
-	
-	if ([self.delegate respondsToSelector:@selector(memoryMap:didMapNewRegion:)]) {
+	[_regions insertObject:region atIndex:[_regions indexOfObject:region inSortedRange:(NSRange){ 0, _regions.count } options:NSBinarySearchingInsertionIndex | NSBinarySearchingFirstEqual
+			  usingComparator:^ NSComparisonResult (ECVIMemoryRegion *region1, ECVIMemoryRegion *region2) {
+		return (region1.baseAddress < region2.baseAddress ? NSOrderedAscending : (region1.baseAddress == region2.baseAddress ? NSOrderedSame : NSOrderedDescending));
+	}]];
+	if ([self.delegate respondsToSelector:@selector(memoryMap:didMapNewRegion:)])
 		[self.delegate memoryMap:self didMapNewRegion:region];
-	}
 	return region;
+}
+
+- (ECVIMemoryRegion *)mapInternalRegionOfSize:(uint64_t)regionLen withName:(NSString *)regionName
+{
+	return [self mapInternalRegionOfSize:regionLen withName:regionName atAddress:[self findEmptyRegionofSize:regionLen]];
+}
+
+- (ECVIMemoryRegion *)mapInternalRegionOfSize:(uint64_t)regionLen withName:(NSString *)regionName atAddress:(uint64_t)regionBase
+{
+	return [self mapRegion:[[ECVIMemoryRegion alloc] initWithInternalBackingOfLength:regionLen atAddress:regionBase name:regionName inMap:self]];
+}
+
+- (ECVIMemoryRegion *)mapVirtualRegionOfSize:(uint64_t)regionLen withName:(NSString *)regionName
+{
+	return [self mapVirtualRegionOfSize:regionLen withName:regionName atAddress:[self findEmptyRegionofSize:regionLen]];
+}
+
+- (ECVIMemoryRegion *)mapVirtualRegionOfSize:(uint64_t)regionLen withName:(NSString *)regionName atAddress:(uint64_t)regionBase
+{
+	return [self mapRegion:[[ECVIMemoryRegion alloc] initWithVirtualBackingOfLength:regionLen atAddress:regionBase name:regionName inMap:self]];
+}
+
+- (ECVIMemoryRegion *)mapExternalRegionWithBacking:(NSData *)backing withName:(NSString *)regionName
+{
+	return [self mapExternalRegionWithBacking:backing withName:regionName atAddress:[self findEmptyRegionofSize:backing.length]];
+}
+
+- (ECVIMemoryRegion *)mapExternalRegionWithBacking:(NSData *)backing withName:(NSString *)regionName atAddress:(uint64_t)regionBase
+{
+	return [self mapRegion:[[ECVIMemoryRegion alloc] initWithExternalBacking:backing atAddress:regionBase name:regionName inMap:self]];
+}
+
+- (ECVIMemoryRegion *)mapExternalRegionWithMutableBacking:(NSMutableData *)backing withName:(NSString *)regionName
+{
+	return [self mapExternalRegionWithMutableBacking:backing withName:regionName atAddress:[self findEmptyRegionofSize:backing.length]];
+}
+
+- (ECVIMemoryRegion *)mapExternalRegionWithMutableBacking:(NSMutableData *)backing withName:(NSString *)regionName atAddress:(uint64_t)regionBase
+{
+	return [self mapRegion:[[ECVIMemoryRegion alloc] initWithMutableExternalBacking:backing atAddress:regionBase name:regionName inMap:self]];
 }
 
 - (bool)unmapRegionAt:(uint64_t)regionBase unmappingMultiple:(bool)multiple
 {
-	for (auto i = self.regionsBegin; i != self.regionsEnd; ++i) {
-		if ((*i).baseAddress == regionBase) {
-			[self unmapRegion:*i];
-			if (!multiple)
-				return true;
-		}
+	NSIndexSet *deadRegions = [_regions indexesOfObjectsPassingTest:^ BOOL (ECVIMemoryRegion *obj, NSUInteger idx, BOOL *stop) {
+		*stop = multiple;
+		return obj.baseAddress == regionBase;
+	}];
+
+	if (deadRegions.count) {
+		[_regions removeObjectsAtIndexes:deadRegions];
+		return true;
 	}
 	return false;
 }
 
-- (bool)unmapRegion:(const ECVIMemoryRegion &)region
+- (bool)unmapRegion:(ECVIMemoryRegion *)region
 {
-	bool didErase = (_regions.erase(reinterpret_cast<const _ECVIMemoryRegion &>(region)) > 0);
+	NSUInteger idx = [_regions indexOfObject:region inSortedRange:(NSRange){ 0, _regions.count } options:NSBinarySearchingFirstEqual
+							   usingComparator:^ NSComparisonResult (ECVIMemoryRegion *obj1, ECVIMemoryRegion *obj2) { return [@(obj1.baseAddress) compare:@(obj2.baseAddress)]; }];
 	
-	if (didErase && [self.delegate respondsToSelector:@selector(memoryMap:didUnmapRegion:)]) {
-		[self.delegate memoryMap:self didUnmapRegion:region];
-	}
-	return didErase;
+	if (idx != NSNotFound)
+		[_regions removeObjectAtIndex:idx];
+	return idx == NSNotFound;
 }
 
-- (uint64_t)readValueOfLength:(uint64_t)length fromAddress:(uint64_t)address
+- (void)unmapAllRegions
 {
-	const _ECVIMemoryRegion &region = [self regionContainingAddress:address];
+	if ([self.delegate respondsToSelector:@selector(memoryMap:didUnmapRegion:)]) {
+		[_regions enumerateObjectsUsingBlock:^ (ECVIMemoryRegion *region, NSUInteger idx, BOOL *stop) {
+			[self.delegate memoryMap:self didUnmapRegion:region];
+		}];
+	}
+	[_regions removeAllObjects];
+}
+
+- (uint128_t)readValueOfLength:(uint64_t)length fromAddress:(uint64_t)address
+{
+	ECVIMemoryRegion *region = [self regionContainingAddress:address];
 	
-	if (region == ECVIInvalidRegion || address + length >= region.baseAddress + region.length || __builtin_popcount(length) > 1 || length > 8) {
-		if ([self.delegate respondsToSelector:@selector(memoryMap:didSeeReadFromUnmappedAddress:ofSize:ofValue:)]) {
+	if (region == nil || address + length >= region.lastAddress || __builtin_popcount(length) > 1 || length > 16) {
+		if ([self.delegate respondsToSelector:@selector(memoryMap:didSeeReadFromUnmappedAddress:ofSize:)]) {
 			[self.delegate memoryMap:self didSeeReadFromUnmappedAddress:address ofSize:length];
 		}
 		return 0;
 	}
 	
-	uint64_t value = 0;
+	uint128_t value = 0;
 	
-	switch (length) {
-		case 1:
-			value = static_cast<uint64_t>(reinterpret_cast<uint8_t *>(region.area.mutableBytes)[address - region.baseAddress]);
-			break;
-		case 2:
-			value = static_cast<uint64_t>(reinterpret_cast<uint16_t *>(reinterpret_cast<uint8_t *>(region.area.mutableBytes))[address - region.baseAddress]);
-			break;
-		case 4:
-			value = static_cast<uint64_t>(reinterpret_cast<uint32_t *>(reinterpret_cast<uint8_t *>(region.area.mutableBytes))[address - region.baseAddress]);
-			break;
-		case 8:
-			value = static_cast<uint64_t>(reinterpret_cast<uint64_t *>(reinterpret_cast<uint8_t *>(region.area.mutableBytes))[address - region.baseAddress]);
-			break;
-		default:
-			NSAssert(NO, @"How did we get here?");
-			break;
+	if (region.bytes != nullptr) {
+		switch (length) {
+			case 1:
+				value = region.bytes[address - region.baseAddress];
+				break;
+			case 2:
+				value = *(const uint16_t *)(&region.bytes[address - region.baseAddress]);
+				break;
+			case 4:
+				value = *(const uint32_t *)(&region.bytes[address - region.baseAddress]);
+				break;
+			case 8:
+				value = *(const uint64_t *)(&region.bytes[address - region.baseAddress]);
+				break;
+			case 16:
+				value = *(const uint128_t *)(&region.bytes[address - region.baseAddress]);
+				break;
+			default:
+				NSAssert(NO, @"How did we get here?");
+				break;
+		}
 	}
 	
 	if ([self.delegate respondsToSelector:@selector(memoryMap:didSeeReadFromAddress:ofSize:ofValue:inRegion:)]) {
@@ -203,11 +232,11 @@ static const _ECVIMemoryRegion ECVIInvalidRegion;
 	return value;
 }
 
-- (void)writeValue:(uint64_t)value ofLength:(uint64_t)length toAddress:(uint64_t)address
+- (void)writeValue:(uint128_t)value ofLength:(uint64_t)length toAddress:(uint64_t)address
 {
-	const _ECVIMemoryRegion &region = [self regionContainingAddress:address];
+	ECVIMemoryRegion *region = [self regionContainingAddress:address];
 	
-	if (region == ECVIInvalidRegion || address + length >= region.baseAddress + region.length || __builtin_popcount(length) > 1 || length > 8) {
+	if (region == nil || region.mutableBacking == nil || address + length >= region.lastAddress || __builtin_popcount(length) > 1 || length > 16) {
 		if ([self.delegate respondsToSelector:@selector(memoryMap:didSeeWriteToUnmappedAddress:ofSize:)]) {
 			[self.delegate memoryMap:self didSeeWriteToUnmappedAddress:address ofSize:length];
 		}
@@ -216,16 +245,19 @@ static const _ECVIMemoryRegion ECVIInvalidRegion;
 	
 	switch (length) {
 		case 1:
-			reinterpret_cast<uint8_t *>(region.area.mutableBytes)[address - region.baseAddress] = static_cast<uint8_t>(value);
+			region.mutableBytes[address - region.baseAddress] = static_cast<uint8_t>(value);
 			break;
 		case 2:
-			*reinterpret_cast<uint16_t *>(&reinterpret_cast<uint8_t *>(region.area.mutableBytes)[address - region.baseAddress]) = static_cast<uint16_t>(value);
+			*(uint16_t *)(&region.mutableBytes[address - region.baseAddress]) = static_cast<uint16_t>(value);
 			break;
 		case 4:
-			*reinterpret_cast<uint32_t *>(&reinterpret_cast<uint8_t *>(region.area.mutableBytes)[address - region.baseAddress]) = static_cast<uint32_t>(value);
+			*(uint32_t *)(&region.mutableBytes[address - region.baseAddress]) = static_cast<uint32_t>(value);
 			break;
 		case 8:
-			*reinterpret_cast<uint64_t *>(&reinterpret_cast<uint8_t *>(region.area.mutableBytes)[address - region.baseAddress]) = static_cast<uint64_t>(value);
+			*(uint64_t *)(&region.mutableBytes[address - region.baseAddress]) = static_cast<uint64_t>(value);
+			break;
+		case 16:
+			*(uint128_t *)(&region.mutableBytes[address - region.baseAddress]) = value;
 			break;
 		default:
 			NSAssert(NO, @"How did we get here?");
@@ -238,13 +270,11 @@ static const _ECVIMemoryRegion ECVIInvalidRegion;
 	return value;
 }
 
-- (const _ECVIMemoryRegion &)regionContainingAddress:(uint64_t)address
+- (ECVIMemoryRegion *)regionContainingAddress:(uint64_t)address
 {
-	for (auto i = _regions.cbegin(); i != _regions.cend(); ++i) {
-		if ((*i).baseAddress <= address && (*i).baseAddress + (*i).length > address)
-			return *i;
-	}
-	return ECVIInvalidRegion;
+	NSUInteger idx = [_regions indexOfObjectPassingTest:^ BOOL (ECVIMemoryRegion *region, NSUInteger idx, BOOL *stop) { return (*stop = region.baseAddress <= address && address <= region.lastAddress); }];
+				
+	return idx == NSNotFound ? nil : _regions[idx];
 }
 
 - (uint64_t)findEmptyRegionofSize:(uint64_t)regionLen
@@ -252,22 +282,31 @@ static const _ECVIMemoryRegion ECVIInvalidRegion;
 	uint64_t base = 0;
 	
 	while (base + regionLen > base) {
-		const _ECVIMemoryRegion &region1 = [self regionContainingAddress:base];
+		ECVIMemoryRegion *region1 = [self regionContainingAddress:base];
 		
-		if (region1 != ECVIInvalidRegion) {
-			base = region1.baseAddress + region1.length;
+		if (region1) {
+			base = region1.lastAddress + 1;
 			continue;
 		}
-		const _ECVIMemoryRegion &region2 = [self regionContainingAddress:base + regionLen];
+		ECVIMemoryRegion *region2 = [self regionContainingAddress:base + regionLen];
 		
-		if (region2 != ECVIInvalidRegion) {
-			base = region2.baseAddress + region2.length;
+		if (region2) {
+			base = region2.lastAddress + 1;
 			continue;
 		}
 		
 		return base;
 	}
 	return ECVIInvalidRegionAddress;
+}
+
+- (NSString *)description
+{
+	NSMutableString *desc = @"".mutableCopy;
+	
+	[desc appendFormat:@"Memory map <%p> with %lu regions:\n", self, (unsigned long)_regions.count];
+	[_regions enumerateObjectsUsingBlock:^ (ECVIMemoryRegion *region, NSUInteger idx, BOOL *stop) { [desc appendFormat:@"%@\n", region]; }];
+	return desc;
 }
 
 @end

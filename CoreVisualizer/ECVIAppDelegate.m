@@ -7,7 +7,7 @@
 //
 
 #import "ECVIAppDelegate.h"
-#import "ECVIInstance.h"
+#import "ECVIBinaryWindowController.h"
 
 @interface ECVIAppDelegate () <NSApplicationDelegate>
 
@@ -16,9 +16,13 @@
 @end
 
 @implementation ECVIAppDelegate
+{
+	NSMutableArray *_controllers;
+}
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
+	_controllers = @[].mutableCopy;
 }
 
 - (IBAction)openDocument:(id)sender
@@ -35,17 +39,10 @@
 	panel.treatsFilePackagesAsDirectories = YES;
 	panel.showsHiddenFiles = NO;
 	if ([panel runModal] == NSFileHandlingPanelOKButton) {
-		ECVIInstance *instance = [[ECVIInstance alloc] init];
-		NSError *error = nil;
+		ECVIBinaryWindowController *controller = [[ECVIBinaryWindowController alloc] initWithURL:panel.URL];
 		
-		[instance reset];
-		if (![instance loadBinary:panel.URL error:&error]) {
-			NSLog(@"Error %@", error);
-		} else {
-			NSLog(@"%@", instance);
-			[instance stepOne];
-			NSLog(@"%@", instance);
-		}
+		[controller showWindow:self];
+		[_controllers addObject:controller];
 	}
 }
 
