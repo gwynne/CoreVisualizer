@@ -9,14 +9,27 @@
 #import "ECVIAppleA7CPUCore.h"
 #import "ECVIMemoryMap.h"
 
-static const uint32_t R_x[32] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31 },
+static const uint32_t R_x[32] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 32 },
 					  R_sp = 32, R_pc = 33, R_nzcv = 34,
 					  R_v[32] = { 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66 },
 					  R_fpsr = 67, R_fpcr = 68;
 
-#define updateRegister(reg, value) do {	\
-	reg = value;	\
-	if (delegateCares)	\
+#define getRegister(reg, wantsp) ({	\
+	uint64_t v = 0;	\
+	if (R_ ## reg == 32)/*sp!*/	{ \
+		if (wantsp) v = sp;	\
+	} else {	\
+		v = reg;	\
+	}	\
+	v;	\
+})
+#define updateRegister(reg, value, wantsp) do {	\
+	if (R_ ## reg == 32)/*sp!*/	{ \
+		if (wantsp) sp = value;	\
+	} else {	\
+		reg = value;	\
+	}	\
+	if (delegateCares && (R_ ## reg != 32 || wantsp))	\
 		[delegate CPUcore:outerCore didUpdateRegister:R_ ## reg toValue:reg];	\
 } while (0)
 #define updateFlags(n_, z_, c_, v_) do {	\
@@ -31,7 +44,7 @@ class ECVIARMv8Core {
 		uint64_t pc;
 		uint64_t sp;
 		uint64_t x[31];
-		__uint128_t v[32];
+		uint128_t v[32];
 		uint32_t fpcr;
 		uint32_t fpsr;
 		bool n, z, c, vv;
@@ -100,8 +113,8 @@ class ECVIARMv8Core {
 	[desc appendFormat:@" sp: %016llx      pc: %016llx    nzcv: %01x\n",					 innerCore.sp, innerCore.pc, (innerCore.n << 3) | (innerCore.z << 2) | (innerCore.c << 1) | innerCore.vv];
 	for (uint32_t i = 0; i < 32; i += 2) {
 		[desc appendFormat:@"v%u:%s %016llx%016llx    v%u:%s %016llx%016llx\n",
-			   i, i > 9 ? "" : " ", (uint64_t)(innerCore.v[i] >> 64), (uint64_t)(innerCore.v[i] & ((__uint128_t)UINT64_MAX)),
-			   i + 1, (i + 1) > 9 ? "" : " ", (uint64_t)(innerCore.v[i + 1] >> 64), (uint64_t)(innerCore.v[i + 1] & ((__uint128_t)UINT64_MAX))];
+			   i + 0, (i + 0) > 9 ? "" : " ", (uint64_t)(innerCore.v[i + 0] >> 64), (uint64_t)(innerCore.v[i + 0] & ((uint128_t)UINT64_MAX)),
+			   i + 1, (i + 1) > 9 ? "" : " ", (uint64_t)(innerCore.v[i + 1] >> 64), (uint64_t)(innerCore.v[i + 1] & ((uint128_t)UINT64_MAX))];
 	}
 	[desc appendFormat:@"fpsr: %08x                           fpcr: %08x\n", innerCore.fpsr, innerCore.fpcr];
 	return desc;
@@ -124,6 +137,24 @@ class ECVIARMv8Core {
 	return rnum < self.numRegisters ? registerNames[rnum] : nil;
 }
 
+- (NSString *)nameForRegister:(uint32_t)rnum sized:(uint32_t)s sp:(bool)wantsp
+{
+	if (rnum == 31) {
+		return wantsp ? @"sp" : @"zr";
+	} else if (rnum < 32) {
+		if (s == 4)
+			return [[self nameForRegister:rnum] stringByReplacingOccurrencesOfString:@"x" withString:@"w"];
+		else
+			return [self nameForRegister:rnum];
+	} else if (rnum == 32 || rnum == 33 || rnum == 34 || rnum == 67 || rnum == 68)
+		return [self nameForRegister:rnum];
+	else {
+		static NSString * const p[] = { @"b", @"h", @"s", @"d", @"q" };
+		
+		return [[self nameForRegister:rnum] stringByReplacingOccurrencesOfString:@"v" withString:p[__builtin_ctz(s)]];
+	}
+}
+
 - (uint64_t)sizeOfRegister:(uint32_t)rnum
 {
 	return (rnum < 34/*gpr,sp,pc*/ ? 8 : (rnum == 34/*nzcv*/ ? 1 : (rnum < 67/*fpr*/ ? 16 : (rnum < 69/*fpsr,fpcr*/ ? 4 : 0))));
@@ -140,7 +171,7 @@ class ECVIARMv8Core {
 	} else if (rnum == 34) {
 		return (innerCore.n << 3) | (innerCore.z << 2) | (innerCore.c << 1) | innerCore.vv;
 	} else if (rnum < 67) {
-		return innerCore.v[rnum];
+		return innerCore.v[rnum - 35];
 	} else if (rnum == 67) {
 		return innerCore.fpsr;
 	} else if (rnum == 68) {
@@ -170,24 +201,94 @@ void ECVIARMv8Core::step()
 {
 	uint32_t opcode = [map readValueOfLength:sizeof(uint32_t) fromAddress:pc];
 	
-	if ((opcode & 0x7fe00000) == 0x1c000000) { // adc
+	if ((opcode & 0x7fe00000) == 0x1c000000 || (opcode & 0x7fe00000) == 0x3c00000) { // adc
 		uint32_t d = (opcode & 0x0000001f),
 				 nn = (opcode & 0x000003e0) >> 5,
-				 m = (opcode & 0x001f0000) >> 16;
+				 m = (opcode & 0x001f0000) >> 16,
+				 S = (opcode & 0x20000000) >> 29,
+				 sf = (opcode >> 31);
 		
-		if ((opcode & 0x80000000)) {
-			uint128_t r = x[nn] + x[m] + !!c;
-
-			updateRegister(x[d], r & 0xffffffffffffffff);
-			updateFlags(x[d] & 0x8000000000000000 ? true : false,
-						x[d] == 0,
-						r == x[d],
-						(int128_t)r == (int128_t)((int64_t)x[d])
-			);
+		if (sf) {
+			uint128_t r = getRegister(x[nn], false) + getRegister(x[m], false) + !!c;
+			
+			NSLog(@"%@ %@, %@, %@", S ? @"adcs" : @"adc", [outerCore nameForRegister:d sized:8 sp:false], [outerCore nameForRegister:nn sized:8 sp:false], [outerCore nameForRegister:m sized:8 sp:false]);
+			updateRegister(x[d], r & 0xffffffffffffffff, false);
+			if (S) {
+				updateFlags(getRegister(x[d], false) & 0x8000000000000000 ? true : false,
+							getRegister(x[d], false) == 0,
+							r == getRegister(x[d], false),
+							(int128_t)r == (int128_t)((int64_t)getRegister(x[d], false))
+				);
+			}
+		} else {
+			uint64_t r = (getRegister(x[nn], false) & 0x00000000ffffffff) + (getRegister(x[m], false) & 0x00000000ffffffff) + !!c;
+			
+			NSLog(@"%@ %@, %@, %@", S ? @"adcs" : @"adc", [outerCore nameForRegister:d sized:4 sp:false], [outerCore nameForRegister:nn sized:4 sp:false], [outerCore nameForRegister:m sized:4 sp:false]);
+			updateRegister(x[d], (getRegister(x[d], false) & 0xffffffff00000000) | (r & 0x00000000ffffffff), false);
+			if (S) {
+				updateFlags(getRegister(x[d], false) & 0x0000000080000000 ? true : false,
+							(getRegister(x[d], false) & 0x00000000ffffffff) == 0,
+							r == (getRegister(x[d], false) & 0x00000000ffffffff),
+							(int64_t)r == (int64_t)(getRegister(x[d], false) & 0x00000000ffffffff)
+				);
+			}
 		}
+	} else if ((opcode & 0x7f000000) == 0x11000000 || (opcode & 0x7f000000) == 0x31000000) { // add, adds
+		uint32_t d = (opcode & 0x0000001f),
+				 nn = (opcode & 0x000003e0) >> 5,
+				 imm = (opcode & 0x003ffc00) >> 10,
+				 shift = (opcode & 0x0c000000) >> 22,
+				 S = (opcode & 0x20000000) >> 29,
+				 sf = (opcode >> 31);
+		
+		if (shift == 1)
+			imm <<= 12;
+		if (sf) {
+			uint128_t r = getRegister(x[nn], !S) + (uint64_t)imm;
+			
+			NSLog(@"%@ %@, %@, #%u%@", S ? @"adds" : @"add", [outerCore nameForRegister:d sized:8 sp:!S], [outerCore nameForRegister:nn sized:8 sp:!S], imm, shift ? @", 1" : @"");
+			updateRegister(x[d], r & 0xffffffffffffffff, !S);
+			if (S) {
+				updateFlags(getRegister(x[d], !S) & 0x8000000000000000 ? true : false,
+							getRegister(x[d], !S) == 0,
+							r == getRegister(x[d], !S),
+							(int128_t)r == (int128_t)((int64_t)getRegister(x[d], false))
+				);
+			}
+		} else {
+			uint64_t r = (getRegister(x[nn], !S) & 0x00000000ffffffff) + (uint32_t)(imm & 0x00000000ffffffff);
+			
+			NSLog(@"%@ %@, %@, #%u%@", S ? @"adds" : @"add", [outerCore nameForRegister:d sized:4 sp:!S], [outerCore nameForRegister:nn sized:4 sp:!S], imm, shift ? @", 1" : @"");
+			updateRegister(x[d], (getRegister(x[d], !S) & 0xffffffff00000000) | (r & 0x00000000ffffffff), !S);
+			if (!S) {
+				updateFlags(getRegister(x[d], false) & 0x0000000080000000 ? true : false,
+							(getRegister(x[d], false) & 0x00000000ffffffff) == 0,
+							r == (getRegister(x[d], false) & 0x00000000ffffffff),
+							(int64_t)r == (int64_t)(getRegister(x[d], false) & 0x00000000ffffffff)
+				);
+			}
+		}
+	} else if ((opcode & 0xbf000000) == 0x18000000) { // ldr imm
+		uint32_t t = (opcode & 0x0000001f),
+				 imm = (opcode & 0x00ffffe0) >> 5,
+				 sf = (opcode & 0x40000000) >> 30;
+		uint64_t offset = imm << 2,
+				 addr = getRegister(pc, false) + offset;
+		
+		if (sf) {
+			NSLog(@"ldr %@, [+0x%llx]", [outerCore nameForRegister:t sized:8 sp:false], offset);
+			updateRegister(x[t], [map readValueOfLength:sizeof(uint64_t) fromAddress:addr], false);
+		} else {
+			NSLog(@"ldr %@, [+0x%llx]", [outerCore nameForRegister:t sized:4 sp:false], offset);
+			updateRegister(x[t], (getRegister(x[t], false) & 0xffffffff00000000) | [map readValueOfLength:sizeof(uint32_t) fromAddress:addr], false);
+		}
+	} else if ((opcode & 0xfffffc1f) == 0xd61f0000) { // br
+		uint32_t nn = (opcode & 0x000003e0) >> 5;
+		
+		NSLog(@"br [%@]", [outerCore nameForRegister:nn sized:8 sp:false]);
+		updateRegister(pc, getRegister(x[nn], false) - 4, false);
 	} else {
 		NSLog(@"UNKNOWN OPCODE 0x%08x", opcode);
 	}
-	updateRegister(pc, pc + 4);
-	pc += 4;
+	updateRegister(pc, pc + 4, false);
 }

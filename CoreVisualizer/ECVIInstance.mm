@@ -69,8 +69,18 @@
 
 	ECVIMachOEntryCommand *entry = (ECVIMachOEntryCommand *)[image loadCommandOfType:LC_MAIN];
 	
-	_core.startPC = entry.entryAddress;
-	[_map mapInternalRegionOfSize:entry.initialStackSize withName:@"__STACK"];
+	ECVIMemoryRegion *stack = [_map mapInternalRegionOfSize:entry.initialStackSize withName:@"__STACK"];
+	ECVIMemoryRegion *shim = [_map mapInternalRegionOfSize:4096 withName:@"__LOAD_SHIM"];
+	
+	_core.startPC = shim.baseAddress;
+	shim.mutableLongs[0] = (0x58U << 24)/*opc*/ | (0x4U << 5)/*imm19*/ | (0x00U << 0)/*Rt*/;													// LDR x0, 4*4(pc)
+	shim.mutableLongs[1] = (0x91U << 24)/*opc*/ | (0x00U << 22)/*shift*/ | (0x00U << 10)/*imm12*/ | (0x00U << 5)/*Rn*/ | (0x1fU << 0)/*Rd*/;	// MOV sp, x0
+	shim.mutableLongs[2] = (0x58U << 24)/*opc*/ | (0x4U << 5)/*imm19*/ | (0x01U << 0)/*Rt*/;													// LDR x1, 6*4(pc)
+	shim.mutableLongs[3] = (0x3587c0U << 10)/*opc*/ | (0x01U << 5)/*Rn*/ | (0x00U << 0);														// BR x1
+	shim.mutableQuads[2] = stack.baseAddress;
+	shim.mutableQuads[3] = entry.entryAddress;
+	
+	[_core reset];
 	return true;
 }
 
