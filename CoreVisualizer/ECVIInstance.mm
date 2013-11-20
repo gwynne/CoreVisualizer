@@ -147,9 +147,9 @@
 	[_core step];
 }
 
-- (void)CPUcore:(ECVIGenericCPUCore *)core didUpdateRegister:(uint32_t)rnum toValue:(uint64_t)value
+- (void)CPUcore:(ECVIGenericCPUCore *)core didUpdateRegister:(uint32_t)rnum toValue:(uint128_t)value
 {
-	NSLog(@"Register %u updated to %llu!", rnum, value);
+	NSLog(@"Register %u updated to 0x%016llx%016llx", rnum, (uint64_t)(value >> 64), (uint64_t)(value & (uint128_t)UINT64_MAX));
 	if ([self.delegate respondsToSelector:_cmd])
 		[self.delegate CPUcore:core didUpdateRegister:rnum toValue:value];
 }

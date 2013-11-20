@@ -30,7 +30,7 @@ static const uint32_t R_x[32] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 
 		reg = value;	\
 	}	\
 	if (delegateCares && (R_ ## reg != 32 || wantsp))	\
-		[delegate CPUcore:outerCore didUpdateRegister:R_ ## reg toValue:reg];	\
+		[delegate CPUcore:outerCore didUpdateRegister:R_ ## reg toValue:R_ ## reg == 32 ? sp : reg];	\
 } while (0)
 #define updateFlags(n_, z_, c_, v_) do {	\
 	n = n_; z = z_; c = c_; vv = v_;	\

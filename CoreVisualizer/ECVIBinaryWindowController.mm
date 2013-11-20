@@ -76,7 +76,7 @@
 	return view;
 }
 
-- (void)CPUcore:(ECVIGenericCPUCore *)core didUpdateRegister:(uint32_t)rnum toValue:(uint64_t)value
+- (void)CPUcore:(ECVIGenericCPUCore *)core didUpdateRegister:(uint32_t)rnum toValue:(uint128_t)value
 {
 	[_listTable reloadDataForRowIndexes:[NSIndexSet indexSetWithIndex:rnum] columnIndexes:[NSIndexSet indexSetWithIndex:1]];
 }
