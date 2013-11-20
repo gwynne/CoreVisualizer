@@ -194,7 +194,7 @@
 {
 	ECVIMemoryRegion *region = [self regionContainingAddress:address];
 	
-	if (region == nil || address + length >= region.lastAddress || __builtin_popcount(length) > 1 || length > 16) {
+	if (region == nil || address + length - 1 > region.lastAddress || __builtin_popcount(length) > 1 || length > 16) {
 		if ([self.delegate respondsToSelector:@selector(memoryMap:didSeeReadFromUnmappedAddress:ofSize:)]) {
 			[self.delegate memoryMap:self didSeeReadFromUnmappedAddress:address ofSize:length];
 		}
@@ -236,7 +236,7 @@
 {
 	ECVIMemoryRegion *region = [self regionContainingAddress:address];
 	
-	if (region == nil || region.mutableBacking == nil || address + length >= region.lastAddress || __builtin_popcount(length) > 1 || length > 16) {
+	if (region == nil || region.mutableBacking == nil || address + length - 1 > region.lastAddress || __builtin_popcount(length) > 1 || length > 16) {
 		if ([self.delegate respondsToSelector:@selector(memoryMap:didSeeWriteToUnmappedAddress:ofSize:)]) {
 			[self.delegate memoryMap:self didSeeWriteToUnmappedAddress:address ofSize:length];
 		}

@@ -38,6 +38,13 @@ static const uint32_t R_x[32] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 
 		[delegate CPUcore:outerCore didUpdateRegister:R_nzcv toValue:(n << 3) | (z << 2) | (c << 1) | vv];	\
 } while (0)
 
+#define OPCODE(...) union { uint32_t opcode; struct { __VA_ARGS__ } bits; } op = { .opcode = opcode }
+#define OU(nm, n) uint32_t nm:n
+#define OS(nm, n) int32_t nm:n
+#define __OR(n,c) uint32_t res ## c:n
+#define _OR(n,c) __OR(n, c)
+#define OR(n) _OR(n, __COUNTER__)
+
 class ECVIARMv8Core {
 
 	public:
@@ -269,24 +276,35 @@ void ECVIARMv8Core::step()
 			}
 		}
 	} else if ((opcode & 0xbf000000) == 0x18000000) { // ldr imm
-		uint32_t t = (opcode & 0x0000001f),
-				 imm = (opcode & 0x00ffffe0) >> 5,
-				 sf = (opcode & 0x40000000) >> 30;
-		uint64_t offset = imm << 2,
+		OPCODE( OU(t, 5); OU(imm, 19); OR(6); OU(sf, 1); OR(1); );
+		uint64_t offset = op.bits.imm << 2,
 				 addr = getRegister(pc, false) + offset;
 		
-		if (sf) {
-			NSLog(@"ldr %@, [+0x%llx]", [outerCore nameForRegister:t sized:8 sp:false], offset);
-			updateRegister(x[t], [map readValueOfLength:sizeof(uint64_t) fromAddress:addr], false);
+		NSLog(@"ldr %@, [+0x%llx]", [outerCore nameForRegister:op.bits.t sized:1 << (2 + op.bits.sf) sp:false], offset);
+		if (op.bits.sf) {
+			updateRegister(x[op.bits.t], [map readValueOfLength:1 << (2 + op.bits.sf) fromAddress:addr], false);
 		} else {
-			NSLog(@"ldr %@, [+0x%llx]", [outerCore nameForRegister:t sized:4 sp:false], offset);
-			updateRegister(x[t], (getRegister(x[t], false) & 0xffffffff00000000) | [map readValueOfLength:sizeof(uint32_t) fromAddress:addr], false);
+			updateRegister(x[op.bits.t], (getRegister(x[op.bits.t], false) & 0xffffffff00000000) | [map readValueOfLength:sizeof(uint32_t) fromAddress:addr], false);
 		}
 	} else if ((opcode & 0xfffffc1f) == 0xd61f0000) { // br
-		uint32_t nn = (opcode & 0x000003e0) >> 5;
+		OPCODE( OR(5); OU(n, 5); OR(22); );
 		
-		NSLog(@"br [%@]", [outerCore nameForRegister:nn sized:8 sp:false]);
-		updateRegister(pc, getRegister(x[nn], false) - 4, false);
+		NSLog(@"br [%@]", [outerCore nameForRegister:op.bits.n sized:8 sp:false]);
+		updateRegister(pc, getRegister(x[op.bits.n], false) - 4, false);
+	} else if ((opcode & 0x7e400000) == 0x28000000) { // stp
+		OPCODE( OU(rt1, 5); OU(rn, 5); OU(rt2, 5); OS(imm, 7); OR(1); OU(wback, 1); OU(preindex, 1); OR(6); OU(sf, 1); );
+		
+		if (op.bits.preindex) {
+			NSLog(@"stp %@, %@, [%@, #%d]%s", [outerCore nameForRegister:op.bits.rt1 sized:2 << op.bits.sf sp:false], [outerCore nameForRegister:op.bits.rt2 sized:2 << op.bits.sf sp:false],
+											  [outerCore nameForRegister:op.bits.rn sized:2 << op.bits.sf sp:true], op.bits.imm << (2 + op.bits.sf), op.bits.wback ? "!" : "");
+		} else {
+			NSLog(@"stp %@, %@, [%@], #%d", [outerCore nameForRegister:op.bits.rt1 sized:2 << op.bits.sf sp:false], [outerCore nameForRegister:op.bits.rt2 sized:2 << op.bits.sf sp:false],
+											[outerCore nameForRegister:op.bits.rn sized:2 << op.bits.sf sp:true], op.bits.imm << (2 + op.bits.sf));
+		}
+		[map writeValue:getRegister(x[op.bits.rt1], false) ofLength:8 toAddress:getRegister(x[op.bits.rn], true) + ((op.bits.imm << (2 + op.bits.sf)) * op.bits.preindex)];
+		[map writeValue:getRegister(x[op.bits.rt2], false) ofLength:8 toAddress:getRegister(x[op.bits.rn], true) + ((op.bits.imm << (2 + op.bits.sf)) * op.bits.preindex) + (4 << op.bits.sf)];
+		if (op.bits.wback)
+			updateRegister(x[op.bits.rn], getRegister(x[op.bits.rn], true) + (op.bits.imm << (2 << op.bits.sf)), true);
 	} else {
 		NSLog(@"UNKNOWN OPCODE 0x%08x", opcode);
 	}

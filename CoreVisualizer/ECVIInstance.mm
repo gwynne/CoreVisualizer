@@ -77,7 +77,7 @@
 	shim.mutableLongs[1] = (0x91U << 24)/*opc*/ | (0x00U << 22)/*shift*/ | (0x00U << 10)/*imm12*/ | (0x00U << 5)/*Rn*/ | (0x1fU << 0)/*Rd*/;	// MOV sp, x0
 	shim.mutableLongs[2] = (0x58U << 24)/*opc*/ | (0x4U << 5)/*imm19*/ | (0x01U << 0)/*Rt*/;													// LDR x1, 6*4(pc)
 	shim.mutableLongs[3] = (0x3587c0U << 10)/*opc*/ | (0x01U << 5)/*Rn*/ | (0x00U << 0);														// BR x1
-	shim.mutableQuads[2] = stack.baseAddress;
+	shim.mutableQuads[2] = stack.lastAddress + 1;
 	shim.mutableQuads[3] = entry.entryAddress;
 	
 	[_core reset];
