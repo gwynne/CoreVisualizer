@@ -14,6 +14,14 @@ static const uint32_t R_x[32] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 
 					  R_v[32] = { 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66 },
 					  R_fpsr = 67, R_fpcr = 68;
 
+template <typename T>
+static inline T rol(T n, int s)
+{
+	return (n << s) | (n >> ((sizeof(n) << 3) - s));
+}
+
+#define regName(f, s, wsp) [outerCore nameForRegister:op.bits.f sized:s sp:wsp]
+#define regNameSF(f, wsp) regName(f, (1 << (2 + op.bits.sf)), wsp)
 #define getRegister(reg, wantsp) ({	\
 	uint64_t v = 0;	\
 	if (R_ ## reg == 32)/*sp!*/	{ \
@@ -32,11 +40,17 @@ static const uint32_t R_x[32] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 
 	if (delegateCares && (R_ ## reg != 32 || wantsp))	\
 		[delegate CPUcore:outerCore didUpdateRegister:R_ ## reg toValue:R_ ## reg == 32 ? sp : reg];	\
 } while (0)
-#define updateFlags(n_, z_, c_, v_) do {	\
+#define _updateFlags(n_, z_, c_, v_) do {	\
 	n = n_; z = z_; c = c_; vv = v_;	\
 	if (delegateCares)	\
 		[delegate CPUcore:outerCore didUpdateRegister:R_nzcv toValue:(n << 3) | (z << 2) | (c << 1) | vv];	\
 } while (0)
+#define updateFlags(sizb, fvalue) _updateFlags(	\
+	(fvalue >> (sizb - 1)) & 0x1,	\
+	fvalue == 0,	\
+	fvalue > UINT ## sizb ## _MAX,	\
+	fvalue < INT ## sizb ## _MIN || fvalue > INT ## sizb ## _MAX	\
+)
 
 #define OPCODE(...) union { uint32_t opcode; struct { __VA_ARGS__ } bits; } op = { .opcode = opcode }
 #define OU(nm, n) uint32_t nm:n
@@ -208,79 +222,47 @@ void ECVIARMv8Core::step()
 {
 	uint32_t opcode = [map readValueOfLength:sizeof(uint32_t) fromAddress:pc];
 	
-	if ((opcode & 0x7fe00000) == 0x1c000000 || (opcode & 0x7fe00000) == 0x3c00000) { // adc
-		uint32_t d = (opcode & 0x0000001f),
-				 nn = (opcode & 0x000003e0) >> 5,
-				 m = (opcode & 0x001f0000) >> 16,
-				 S = (opcode & 0x20000000) >> 29,
-				 sf = (opcode >> 31);
-		
-		if (sf) {
-			uint128_t r = getRegister(x[nn], false) + getRegister(x[m], false) + !!c;
-			
-			NSLog(@"%@ %@, %@, %@", S ? @"adcs" : @"adc", [outerCore nameForRegister:d sized:8 sp:false], [outerCore nameForRegister:nn sized:8 sp:false], [outerCore nameForRegister:m sized:8 sp:false]);
-			updateRegister(x[d], r & 0xffffffffffffffff, false);
-			if (S) {
-				updateFlags(getRegister(x[d], false) & 0x8000000000000000 ? true : false,
-							getRegister(x[d], false) == 0,
-							r == getRegister(x[d], false),
-							(int128_t)r == (int128_t)((int64_t)getRegister(x[d], false))
-				);
-			}
+	if ((opcode & 0x1fe00000) == 0x1c000000) { // adc, adcs, sbc, sbcs
+		OPCODE( OU(d, 5); OU(n, 5); OR(6); OU(m, 5); OR(8); OU(S, 1); OU(sub, 1); OU(sf, 1); );
+
+		NSLog(@"%@%s %@, %@, %@", op.bits.sub ? @"sbc" : @"adc", op.bits.S ? "s" : "", regNameSF(d, false), regNameSF(n, false), regNameSF(m, false));
+		if (op.bits.sf) {
+			int128_t result = getRegister(x[op.bits.n], false) + (op.bits.sub ? ~(getRegister(x[op.bits.m], false)) : getRegister(x[op.bits.m], false)) + !!c;
+				
+			updateRegister(x[op.bits.d], result & 0xffffffffffffffff, false);
+			if (op.bits.S)
+				updateFlags(64, result);
 		} else {
-			uint64_t r = (getRegister(x[nn], false) & 0x00000000ffffffff) + (getRegister(x[m], false) & 0x00000000ffffffff) + !!c;
-			
-			NSLog(@"%@ %@, %@, %@", S ? @"adcs" : @"adc", [outerCore nameForRegister:d sized:4 sp:false], [outerCore nameForRegister:nn sized:4 sp:false], [outerCore nameForRegister:m sized:4 sp:false]);
-			updateRegister(x[d], (getRegister(x[d], false) & 0xffffffff00000000) | (r & 0x00000000ffffffff), false);
-			if (S) {
-				updateFlags(getRegister(x[d], false) & 0x0000000080000000 ? true : false,
-							(getRegister(x[d], false) & 0x00000000ffffffff) == 0,
-							r == (getRegister(x[d], false) & 0x00000000ffffffff),
-							(int64_t)r == (int64_t)(getRegister(x[d], false) & 0x00000000ffffffff)
-				);
-			}
+			int64_t result = getRegister(x[op.bits.n], false) + (op.bits.sub ? ~(getRegister(x[op.bits.m], false)) : getRegister(x[op.bits.m], false)) + !!c;
+				
+			updateRegister(x[op.bits.d], result & 0xffffffff, false);
+			if (op.bits.S)
+				updateFlags(32, result);
 		}
-	} else if ((opcode & 0x7f000000) == 0x11000000 || (opcode & 0x7f000000) == 0x31000000) { // add, adds
-		uint32_t d = (opcode & 0x0000001f),
-				 nn = (opcode & 0x000003e0) >> 5,
-				 imm = (opcode & 0x003ffc00) >> 10,
-				 shift = (opcode & 0x0c000000) >> 22,
-				 S = (opcode & 0x20000000) >> 29,
-				 sf = (opcode >> 31);
+	} else if ((opcode & 0x1f000000) == 0x11000000) { // add imm, adds imm, sub imm, subs imm
+		OPCODE( OU(d, 5); OU(n, 5); OU(imm, 12); OU(shift, 2); OR(5); OU(S, 1); OU(sub, 1); OU(sf, 1); );
+		uint32_t imm = op.bits.imm << (op.bits.shift * 12);
 		
-		if (shift == 1)
-			imm <<= 12;
-		if (sf) {
-			uint128_t r = getRegister(x[nn], !S) + (uint64_t)imm;
+		NSLog(@"%@%s %@, %@, #%u%@", op.bits.sub ? @"sub" : @"add", op.bits.S ? "s" : "", regNameSF(d, !op.bits.S), regNameSF(n, !op.bits.S), imm, op.bits.shift ? @", 1" : @"");
+		if (op.bits.sf) {
+			int128_t result = getRegister(x[op.bits.n], !op.bits.S) + (op.bits.sub ? ~((uint64_t)imm) + 1 : (uint64_t)imm);
 			
-			NSLog(@"%@ %@, %@, #%u%@", S ? @"adds" : @"add", [outerCore nameForRegister:d sized:8 sp:!S], [outerCore nameForRegister:nn sized:8 sp:!S], imm, shift ? @", 1" : @"");
-			updateRegister(x[d], r & 0xffffffffffffffff, !S);
-			if (S) {
-				updateFlags(getRegister(x[d], !S) & 0x8000000000000000 ? true : false,
-							getRegister(x[d], !S) == 0,
-							r == getRegister(x[d], !S),
-							(int128_t)r == (int128_t)((int64_t)getRegister(x[d], false))
-				);
-			}
+			updateRegister(x[op.bits.d], result & 0xffffffffffffffff, !op.bits.S);
+			if (op.bits.S)
+				updateFlags(64, result);
 		} else {
-			uint64_t r = (getRegister(x[nn], !S) & 0x00000000ffffffff) + (uint32_t)(imm & 0x00000000ffffffff);
+			int64_t result = (getRegister(x[op.bits.n], !op.bits.S) & 0x0ffffffff) + (op.bits.sub ? ~((uint32_t)imm) + 1 : (uint32_t)imm);
 			
-			NSLog(@"%@ %@, %@, #%u%@", S ? @"adds" : @"add", [outerCore nameForRegister:d sized:4 sp:!S], [outerCore nameForRegister:nn sized:4 sp:!S], imm, shift ? @", 1" : @"");
-			updateRegister(x[d], (getRegister(x[d], !S) & 0xffffffff00000000) | (r & 0x00000000ffffffff), !S);
-			if (!S) {
-				updateFlags(getRegister(x[d], false) & 0x0000000080000000 ? true : false,
-							(getRegister(x[d], false) & 0x00000000ffffffff) == 0,
-							r == (getRegister(x[d], false) & 0x00000000ffffffff),
-							(int64_t)r == (int64_t)(getRegister(x[d], false) & 0x00000000ffffffff)
-				);
-			}
+			updateRegister(x[op.bits.d], (getRegister(x[op.bits.d], !op.bits.S) & 0xffffffff00000000) | (result & 0x00000000ffffffff), !op.bits.S);
+			if (op.bits.S)
+				updateFlags(32, result);
 		}
 	} else if ((opcode & 0xbf000000) == 0x18000000) { // ldr imm
 		OPCODE( OU(t, 5); OU(imm, 19); OR(6); OU(sf, 1); OR(1); );
 		uint64_t offset = op.bits.imm << 2,
 				 addr = getRegister(pc, false) + offset;
 		
-		NSLog(@"ldr %@, [+0x%llx]", [outerCore nameForRegister:op.bits.t sized:1 << (2 + op.bits.sf) sp:false], offset);
+		NSLog(@"ldr %@, [+0x%llx]", regNameSF(t, false), offset);
 		if (op.bits.sf) {
 			updateRegister(x[op.bits.t], [map readValueOfLength:1 << (2 + op.bits.sf) fromAddress:addr], false);
 		} else {
@@ -289,22 +271,29 @@ void ECVIARMv8Core::step()
 	} else if ((opcode & 0xfffffc1f) == 0xd61f0000) { // br
 		OPCODE( OR(5); OU(n, 5); OR(22); );
 		
-		NSLog(@"br [%@]", [outerCore nameForRegister:op.bits.n sized:8 sp:false]);
+		NSLog(@"br [%@]", regName(n, 8, false));
 		updateRegister(pc, getRegister(x[op.bits.n], false) - 4, false);
 	} else if ((opcode & 0x7e400000) == 0x28000000) { // stp
 		OPCODE( OU(rt1, 5); OU(rn, 5); OU(rt2, 5); OS(imm, 7); OR(1); OU(wback, 1); OU(preindex, 1); OR(6); OU(sf, 1); );
 		
 		if (op.bits.preindex) {
-			NSLog(@"stp %@, %@, [%@, #%d]%s", [outerCore nameForRegister:op.bits.rt1 sized:2 << op.bits.sf sp:false], [outerCore nameForRegister:op.bits.rt2 sized:2 << op.bits.sf sp:false],
-											  [outerCore nameForRegister:op.bits.rn sized:2 << op.bits.sf sp:true], op.bits.imm << (2 + op.bits.sf), op.bits.wback ? "!" : "");
+			NSLog(@"stp %@, %@, [%@, #%d]%s", regNameSF(rt1, false), regNameSF(rt2, false), regNameSF(rn, true), op.bits.imm << (2 + op.bits.sf), op.bits.wback ? "!" : "");
 		} else {
-			NSLog(@"stp %@, %@, [%@], #%d", [outerCore nameForRegister:op.bits.rt1 sized:2 << op.bits.sf sp:false], [outerCore nameForRegister:op.bits.rt2 sized:2 << op.bits.sf sp:false],
-											[outerCore nameForRegister:op.bits.rn sized:2 << op.bits.sf sp:true], op.bits.imm << (2 + op.bits.sf));
+			NSLog(@"stp %@, %@, [%@], #%d", regNameSF(rt1, false), regNameSF(rt2, false), regNameSF(rn, true), op.bits.imm << (2 + op.bits.sf));
 		}
-		[map writeValue:getRegister(x[op.bits.rt1], false) ofLength:8 toAddress:getRegister(x[op.bits.rn], true) + ((op.bits.imm << (2 + op.bits.sf)) * op.bits.preindex)];
-		[map writeValue:getRegister(x[op.bits.rt2], false) ofLength:8 toAddress:getRegister(x[op.bits.rn], true) + ((op.bits.imm << (2 + op.bits.sf)) * op.bits.preindex) + (4 << op.bits.sf)];
+		[map writeValue:getRegister(x[op.bits.rt1], false) ofLength:1 << (2 + op.bits.sf) toAddress:getRegister(x[op.bits.rn], true) + ((op.bits.imm << (2 + op.bits.sf)) * op.bits.preindex)];
+		[map writeValue:getRegister(x[op.bits.rt2], false) ofLength:1 << (2 + op.bits.sf) toAddress:getRegister(x[op.bits.rn], true) + ((op.bits.imm << (2 + op.bits.sf)) * op.bits.preindex) + (4 << op.bits.sf)];
 		if (op.bits.wback)
-			updateRegister(x[op.bits.rn], getRegister(x[op.bits.rn], true) + (op.bits.imm << (2 << op.bits.sf)), true);
+			updateRegister(x[op.bits.rn], getRegister(x[op.bits.rn], true) + (op.bits.imm << (2 + op.bits.sf)), true);
+	} else if ((opcode & 0x1f800000) == 0x12800000) { // movk movn movz mov(wide)
+		OPCODE( OU(d, 5); OU(imm, 16); OU(shift, 2); OR(6); OU(opc, 2); OU(sf, 1); );
+		
+		NSLog(@"mov%c %@, #%u%@", (op.bits.opc == 0 ? 'n' : (op.bits.opc == 2 ? 'z' : (op.bits.opc == 3 ? 'k' : '?'))), regNameSF(d, false), op.bits.imm,
+			  op.bits.shift ? [NSString stringWithFormat:@", LSL #%u", op.bits.shift << 4] : @"");
+		uint64_t value = (op.bits.opc == 3 ? getRegister(x[op.bits.d], false) : 0);
+		
+		value = (value & rol(~0ULL << 16, op.bits.shift << 4)) | (op.bits.imm << (op.bits.shift << 4));
+		updateRegister(x[op.bits.d], op.bits.opc ? value : ~value, false);
 	} else {
 		NSLog(@"UNKNOWN OPCODE 0x%08x", opcode);
 	}
